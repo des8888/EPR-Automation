@@ -1,0 +1,26 @@
+{
+    "BillingFrom": "August 05, 2025",
+    "BillingTo": "July 15, 2025",
+    "DueDate": "September 25, 2025",
+    "ModeofPayment":"MANAGER'S CHECK",
+    "ReferenceNo": "Automation Testing",
+    "Particulars":"AUTOMATION TEST",
+
+    "SubCat3":"MEAL ALLOWANCE",
+    "Description":"SAMPLE AUTOMATION TEST",
+    "Location":"DAMIRES JANIUAY - ILOILO",
+    "Product":"DIESEL ENGINE OIL",
+    "Project":"PARTNER'S NIGHT",
+    "ChargeCostCenter":"DIST_OPS_OPPM",
+    "Capex":"Opex",
+    "NetAmnt":"1000",
+
+    "EditSubCat3": "ELECTRICITY",
+    "EditDesc": "SAMPLE AUTOMATION TEST EDITED",
+    "EditLocation":"TAYASAN - NEGROS ORIENTAL",
+    "EditProduct":"ADO",
+    "EditProject":"PROJECT ACTIVATE BOHOL",
+    "EditCharge":"BA_RM",
+    "EditCapex":"Capex",
+    "EditNetAmnt":"1500"
+}

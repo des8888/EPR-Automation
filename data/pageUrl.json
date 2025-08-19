@@ -1,0 +1,6 @@
+{
+    "loginURL": "https://expense.sandbox.seaoil.com.ph/auth",
+    "requestLandingPage": "https://expense.sandbox.seaoil.com.ph/requests",
+    "approvalsPage":"https://expense.sandbox.seaoil.com.ph/approvals",
+    "eprForm" : "https://expense.sandbox.seaoil.com.ph/request/new"
+}

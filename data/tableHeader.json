@@ -1,0 +1,39 @@
+{
+    "Pending Request Headers":[
+        "EPR No.",
+        "Payee Name",
+        "Category",
+        "Sub Category",
+        "Approver Name",
+        "Date Submitted",
+        "Currency",
+        "Amount"
+    ],
+    "Summary Headers":[
+
+    ],
+
+    "Ongoing Headers":[
+        "EPR No.",
+        "Payee Name",
+        "Category",
+        "Sub Category",
+        "Requestor Name",
+        "Date Submitted",
+        "Currency",
+        "Amount",
+        "Actions"
+    ],
+    "Done Headers":[
+        "EPR No.",
+        "Payee Name",
+        "Category",
+        "Sub Category",
+        "Requestor Name",
+        "Date Submitted",
+        "Date Approved",
+        "Currency",
+        "Amount",
+        "Status"
+    ]
+}

@@ -1,0 +1,23 @@
+{
+    "company":"Please select a valid Company from the list.",
+    "payee":"Payee is required and must be selected from the list.",
+    "billingFrom":"Please select a Date.",
+    "billingTo":"Billing Period To must be after or equal to Billing Period From",
+    "dueDate":"Please enter a valid Date",
+    "modeOfPayment":"Please select a Mode of Payment",
+    "category":"Category is required",
+    "subCat1":"Sub Category 1 is required",
+    "subCat2":"Sub Category 2 is required",
+    "refNo":"Reference number is required",
+    "fileAttachments":"At least one file is required",
+    "particulars":"Particulars is required",
+    "addTransactions":"At least one item is required",
+    "subCat3":"Sub Category 3 is required",
+    "description":"Please provide a Description",
+    "location":"Please select a Location",
+    "product":"Please select a Product",
+    "project":"Please select a Project",
+    "chargeCost":"Please select a Charge Cost Center",
+    "capex/opex/cogs":"Please select an Expense Type",
+    "netAmount":"Please enter a valid amount"
+}

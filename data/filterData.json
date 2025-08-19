@@ -1,0 +1,20 @@
+{
+    "DateReqFrom": "August 05, 2025",
+    "DateReqTo": "August 06, 2025",
+
+    "ApprovalsDateReqFrom": "August 13, 2025",
+    "ApprovalsDateReqTo": "August 14, 2025",
+
+    "WrongSampleDateFrom": "July 14, 2025",
+    "WrongSampleDateTo": "July 15, 2025",
+
+    "SearchFieldData":"2000173",
+    "SearchFieldDataforApprovals": "2000233",
+    "WrongSearchFieldData":"20001735",
+
+    "ReqName": "Desiree Balderama",
+    "NoDataMessage":"You currently have no transaction added here.",
+
+    "DateReqFromUI":"June 19, 2025",
+    "DateReqToUI": "June 19, 2025"
+}
