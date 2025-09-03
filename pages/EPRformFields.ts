@@ -187,6 +187,26 @@ export default class EPRFields{
         await this.Vatable.click();
        
     }
+    async InputFieldsonTransactions2(page){
+        await this.SubCat3.waitFor({state:'visible'});
+        await this.SubCat3.fill(dets.SubCat3)
+        await this.SubCat3Data.click()
+        await this.Description.fill(dets.Description);
+        await this.Location.fill(dets.Location);
+        await this.LocationData.click()
+        await this.Product.fill(dets.Product);
+        await this.ProductData.click()
+        await this.Project.fill(dets.Project);
+        await this.ProjectData.click()
+        await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
+        await this.ChargeCostCenterData.click();
+        await this.CapexOpexCogs.fill(dets.Capex);
+        await this.CapexOpexCogsData.click();
+        
+        await this.NetAmnt.fill(dets.NetAmnt);
+        await this.Vatable.click();
+       
+    }
     async ClickAddNewTransactions(){
          await this.sidepanelAddTrans.click();
     }

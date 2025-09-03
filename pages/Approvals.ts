@@ -1,7 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import data from '../data/filterData.json';
 
-export default class RequestPage {
+export default class ApprovalsPage {
     readonly page: Page;
     readonly NewRequestBtn: Locator;
     readonly EPRColumn: Locator;
@@ -48,6 +48,9 @@ export default class RequestPage {
     }
     get DoneTabButton() {
         return this.DoneTab;
+    }
+    get OngoingTabButton(){
+        return this.OngoingTabButton;
     }
 
     async ClickNewRequest() {

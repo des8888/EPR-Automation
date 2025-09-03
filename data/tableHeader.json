@@ -35,5 +35,37 @@
         "Currency",
         "Amount",
         "Status"
-    ]
+    ],
+    "Accounting Headers":{
+        "Ongoing Headers":[
+            "EPR No.",
+            "Payee Name",
+            "Category",
+            "Sub Category",
+            "Requestor Name",
+            "Approver Name",
+            "Date Submitted",
+            "Date Approved",
+            "Assigned AP",
+            "Currency",
+            "Amount",
+            "Status",
+            "Actions"
+        ],
+        "Done Headers":[
+            "EPR No.",
+            "Payee Name",
+            "Category",
+            "Sub Category",
+            "Requestor Name",
+            "Approver Name",
+            "Date Submitted",
+            "Date Approved",
+            "Assigned AP",
+            "Currency",
+            "Amount",
+            "Status",
+            "Uploaded to NetSuite (UI only)"
+        ]
+    }
 }

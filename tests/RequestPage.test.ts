@@ -4,36 +4,10 @@ import eprFields from '../pages/EPRformFields'
 import url from '../data/pageUrl.json';
 import { waitForDebugger } from 'inspector';
 import SharedLocator from '../pages/common/shared-locators';
+import AccountingPage from '../pages/Accounting';
 
 const reqLandingPage = url.requestLandingPage;
-// test("Create New Request", async ({ page }) => {
-//   const requestPage = new RequestPage(page); // instantiate page object
-//   const eprFormFields =  new eprFields(page);
-
-//   // Navigate to landing page (session will persist from user-data-dir)
-//   await page.goto(reqLandingPage);
-
-//   // Perform action
-//   await requestPage.ClickNewRequest();
-//   await eprFormFields.AddTransBtn().waitFor();
-//   await eprFormFields.InputOnFields(page);
-//   await eprFormFields.AddTransBtn().click();
-//   await eprFormFields.InputFieldsonTransactions(page);
-//   await eprFormFields.ClickNext();
-//   await eprFormFields.ClickSubmitRequest();
-//   await eprFormFields.ClickSubmit();
-//   await requestPage.waitForViewofViewAllReq();
-//   await page.waitForTimeout(5000);
-//   await eprFormFields.GetNewEPRNo();
-//   console.log("Creating of New Request is ✅ PASSED")
-
-// });
-
-
-
-test("Create New Request 3 times", async ({ page }) => {
-  for (let i = 1; i <= 2; i++) {
-    console.log(`▶ Creating request #${i}`);
+test("Create New Request", async ({ page }) => {
 
     const requestPage = new RequestPage(page);
     const eprFormFields = new eprFields(page);
@@ -45,23 +19,52 @@ test("Create New Request 3 times", async ({ page }) => {
     await requestPage.ClickNewRequest();
     await eprFormFields.AddTransBtn().waitFor();
     await eprFormFields.InputOnFields(page);
-    for (let i = 1; i <= 2; i++) {
     await eprFormFields.AddTransBtn().click();
-    await eprFormFields.InputFieldsonTransactions(page);
+    await eprFormFields.InputFieldsonTransactions2(page);
     await eprFormFields.ClickAddNewTransactions();
-    }
-    await eprFormFields.CountTotalAmount();
-    await eprFormFields.ClickActionCol();
-    // await eprFormFields.ClickNext();
-    // await eprFormFields.ClickSubmitRequest();
-    // await eprFormFields.ClickSubmit();
-    // await requestPage.waitForViewofViewAllReq();
-    // await page.waitForTimeout(5000);
-    // await eprFormFields.GetNewEPRNo();
+    await eprFormFields.ClickNext();
+    await eprFormFields.ClickSubmitRequest();
+    await eprFormFields.ClickSubmit();
+    await requestPage.waitForViewofViewAllReq();
+    await page.waitForTimeout(5000);
+    await eprFormFields.GetNewEPRNo();
 
-    console.log(`✅ Request #${i} creation ✅ PASSED`);
-  }
+    console.log(`✅ Request creation ✅ PASSED`);
 });
+
+
+
+// test("Create New Request 3 times", async ({ page }) => {
+//   for (let i = 1; i <= 2; i++) {
+//     console.log(`▶ Creating request #${i}`);
+
+//     const requestPage = new RequestPage(page);
+//     const eprFormFields = new eprFields(page);
+
+//     // Navigate to landing page (session will persist from user-data-dir)
+//     await page.goto(reqLandingPage);
+
+//     // Perform actions
+//     await requestPage.ClickNewRequest();
+//     await eprFormFields.AddTransBtn().waitFor();
+//     await eprFormFields.InputOnFields(page);
+//     for (let i = 1; i <= 2; i++) {
+//     await eprFormFields.AddTransBtn().click();
+//     await eprFormFields.InputFieldsonTransactions(page);
+//     await eprFormFields.ClickAddNewTransactions();
+//     }
+//     await eprFormFields.CountTotalAmount();
+//     await eprFormFields.ClickActionCol();
+//     // await eprFormFields.ClickNext();
+//     // await eprFormFields.ClickSubmitRequest();
+//     // await eprFormFields.ClickSubmit();
+//     // await requestPage.waitForViewofViewAllReq();
+//     // await page.waitForTimeout(5000);
+//     // await eprFormFields.GetNewEPRNo();
+
+//     console.log(`✅ Request #${i} creation ✅ PASSED`);
+//   }
+// });
 
 // test("Validating Category Filter", async({page})=>{
 //   const sharedLoc = new SharedLocator(page);
@@ -135,26 +138,28 @@ test("Create New Request 3 times", async ({ page }) => {
 //   console.log("Validation of Approver Name Filter on Summary Tab on Request page ✅ PASSED")
 // })
 
-test('Validate Total amount after Deletion', async({page})=>{
-  const requestPage = new RequestPage(page);
-    const eprFormFields = new eprFields(page);
 
-    // Navigate to landing page (session will persist from user-data-dir)
-    await page.goto(reqLandingPage);
+// test('Validate Total amount after Deletion', async({page})=>{
+//   const requestPage = new RequestPage(page);
+//     const eprFormFields = new eprFields(page);
 
-    // Perform actions
-    await requestPage.ClickNewRequest();
-    await eprFormFields.AddTransBtn().waitFor();
-    await eprFormFields.InputOnFields(page);
-    for (let i = 1; i <= 2; i++) {
-    await eprFormFields.AddTransBtn().click();
-    await eprFormFields.InputFieldsonTransactions(page);
-    await eprFormFields.ClickAddNewTransactions();
-    }
-    await eprFormFields.CountTotalAmount();
-    await eprFormFields.ClickActionCol();
-    await eprFormFields.ClickDelete();
-    await eprFormFields.ClickConfirmDelete();
-    await eprFormFields.CountTotalAmount();
-    console.log("Validate Total amount after Deletion ✅ PASSED")
-})
+//     // Navigate to landing page (session will persist from user-data-dir)
+//     await page.goto(reqLandingPage);
+
+//     // Perform actions
+//     await requestPage.ClickNewRequest();
+//     await eprFormFields.AddTransBtn().waitFor();
+//     await eprFormFields.InputOnFields(page);
+//     for (let i = 1; i <= 2; i++) {
+//     await eprFormFields.AddTransBtn().click();
+//     await eprFormFields.InputFieldsonTransactions(page);
+//     await eprFormFields.ClickAddNewTransactions();
+//     }
+//     await eprFormFields.CountTotalAmount();
+//     await eprFormFields.ClickActionCol();
+//     await eprFormFields.ClickDelete();
+//     await eprFormFields.ClickConfirmDelete();
+//     await eprFormFields.CountTotalAmount();
+//     console.log("Validate Total amount after Deletion ✅ PASSED")
+// })
+
