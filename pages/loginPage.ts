@@ -14,4 +14,5 @@ export default class Login {
 
     // The rest of the code that handles popup should go here...
   }
+  
 }

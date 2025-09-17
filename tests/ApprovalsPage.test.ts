@@ -1,9 +1,10 @@
-import test from "@playwright/test";
+import test from 'node:test';
 import url from '../data/pageUrl.json'
 import ApprovalsPage from "../pages/Approvals";
 import SharedLocator from "../pages/common/shared-locators";
 
 const approvalsPage = url.approvalsPage
+
 
 test("Validating Category Filter", async({page})=>{
   const sharedLoc = new SharedLocator(page);

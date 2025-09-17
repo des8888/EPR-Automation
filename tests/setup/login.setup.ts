@@ -1,9 +1,9 @@
 import { test as setup, expect } from '@playwright/test';
-import url from '../data/pageUrl.json';
+import url from '../../data/pageUrl.json';
 import dotenv from 'dotenv';
-import Login from '../pages/loginPage';
+import Login from '../../pages/loginPage';
 import fs from 'fs';
-import RequestPage from '../pages/Request';
+import RequestPage from '../../pages/Request';
 
 dotenv.config();
 
@@ -33,5 +33,5 @@ setup('write login session data', async ({ page }) => {
   await expect(reqPage.NewRequestButton).toBeVisible({ timeout: 10000 });
 
   // Save Storage State
-  await page.context().storageState({ path: '.auth/storageState.json' });
+  await page.context().storageState({ path: './auth/storageState.json' });
 });

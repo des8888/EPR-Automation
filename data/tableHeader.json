@@ -6,11 +6,25 @@
         "Sub Category",
         "Approver Name",
         "Date Submitted",
+        "Assigned AP",
         "Currency",
-        "Amount"
+        "Amount",
+        "Status",
+        "Actions"
     ],
     "Summary Headers":[
-
+        "EPR No.",
+        "Payee Name",
+        "Category",
+        "Sub Category",
+        "Approver Name",
+        "Date Submitted",
+        "Date Approved",
+        "Assigned AP",
+        "Currency",
+        "Amount",
+        "Status",
+        "Actions"
     ],
 
     "Ongoing Headers":[
@@ -53,6 +67,7 @@
             "Actions"
         ],
         "Done Headers":[
+            " ",
             "EPR No.",
             "Payee Name",
             "Category",

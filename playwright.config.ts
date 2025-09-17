@@ -1,8 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 
-const storageFile = '.auth/storageState.json';
+const storageFile = './auth/storageState.json';
+const accountingStorageFile = './auth/accounting.json';
 const storageExists = fs.existsSync(storageFile);
+const accountingStorageExists = fs.existsSync(accountingStorageFile);
 
 export default defineConfig({
   testDir: './tests',
@@ -22,17 +24,30 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
+      testIgnore: /accounting\.setup\.ts/,  // 👈 ignore accounting here
       
     },
     {
       name: 'behind-login',
-      testMatch: /.*\.test\.ts/,
+      testMatch: /^(?!.*AccountingPage\.test\.ts).*\.test\.ts$/, // exclude AccountingPage
       dependencies: ['setup'],
       use: storageExists
         ? {
             storageState: storageFile,  // Apply ONLY if file exists!
           }
         : {},
+    },
+    {
+      name: 'accounting',
+      testMatch: /AccountingPage\.test\.ts/,
+      dependencies: ['accounting-setup'],
+      use: accountingStorageExists
+        ? { storageState: accountingStorageFile }
+        : {},
+    },
+        {
+      name: 'accounting-setup',
+      testMatch: /tests\/setup\/accounting\.setup\.ts/,
     },
   ],
 });

@@ -73,19 +73,21 @@ export default class EPRFields{
 
         this.Category = page.getByRole('textbox', { name: 'Select a Category' })
         this.CategoryList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t")
-        const randomNum2 = Math.floor(Math.random() * 10) + 1;
+
+        const randomNum2 = Math.floor(Math.random() * 9) + 1;
         this.CategoryListData = page.getByRole('button').nth(randomNum2)
         
         this.SubCategory = page.getByRole('textbox', { name: 'Select Sub Category 1' })
-        this.SubCategoryList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t")
-        const randomNum3 = Math.floor(Math.random() * 10) + 1;
-        this.SubCategoryListData = page.getByRole('button').nth(randomNum3)
+        this.SubCategoryList = page.getByRole('button')
+        
+        //const randomNum3 = Math.floor(Math.random() * 10) + 1;
+        this.SubCategoryListData = page.getByRole('button')
         
         this.SubCategory2 = page.getByRole('textbox', { name: 'Select Sub Category 2' })
-        this.SubCategory2List = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t")
+        this.SubCategory2List = page.getByRole('button')
         //this.SubCategory2ListData = page.getByRole('button', { name: 'COCOSHELL' })
-        const randomNum4 = Math.floor(Math.random() * 10) + 1;
-        this.SubCategory2ListData = page.getByRole('button').nth(randomNum4)
+        
+        this.SubCategory2ListData = page.getByRole('button')
 
         this.RefNo = page.getByPlaceholder('Enter Reference Number (max 1000 chars)');
         this.Particulars = page.getByPlaceholder('Enter particulars (max 1000 chars)');
@@ -95,7 +97,7 @@ export default class EPRFields{
         this.SubCat3 = page.getByRole('combobox', { name: 'Select Sub Category' })
         this.subCat3Col = page.locator("//tbody/tr[1]/td[1]")
 
-        this.SubCat3Data = page.getByRole('option', { name: dets.SubCat3 })
+        this.SubCat3Data = page.getByRole('option',{ name: /.*/ }).first()
         this.Description = page.locator("input[name$='description']");
         this.Location = page.getByRole('combobox', { name: 'Select Location' })
         this.LocationData = page.getByRole('option', { name: dets.Location })
@@ -155,11 +157,18 @@ export default class EPRFields{
         
         await this.SubCategory.click();
         await this.SubCategoryList.waitFor({state:'visible'})
-        await this.SubCategoryListData.click();
+        let count = await this.SubCategoryList.count();
+        console.log(`ETOOOOOOOOO: ${count}`)
+        const randomNum3 = Math.floor(Math.random() * count) + 1;
+        await this.SubCategoryListData.nth(randomNum3).click();
+
 
         await this.SubCategory2.click();
         await this.SubCategory2List.waitFor({state:'visible'})
-        await this.SubCategory2ListData.click();
+        let count2 = await this.SubCategory2List.count();
+        console.log(`ETOOOOOOOOO: ${count2}`)
+        let randomNum4 = Math.floor(Math.random() * count2) + 1;
+        await this.SubCategory2ListData.nth(randomNum4).click();
 
         await this.RefNo.fill(dets.ReferenceNo);
         await this.Particulars.fill(dets.Particulars);
@@ -170,7 +179,7 @@ export default class EPRFields{
     async InputFieldsonTransactions(page){
         await this.SubCat3.waitFor({state:'visible'});
         await this.SubCat3.fill(dets.SubCat3);
-        await this.SubCat3Data.click()
+        const randomNum2 = Math.floor(Math.random() * 9) + 1;
         await this.Description.fill(dets.Description);
         await this.Location.fill(dets.Location);
         await this.LocationData.click()
@@ -189,7 +198,8 @@ export default class EPRFields{
     }
     async InputFieldsonTransactions2(page){
         await this.SubCat3.waitFor({state:'visible'});
-        await this.SubCat3.fill(dets.SubCat3)
+        await this.SubCat3.click()
+        await this.SubCat3Data.waitFor({state:'visible'})
         await this.SubCat3Data.click()
         await this.Description.fill(dets.Description);
         await this.Location.fill(dets.Location);
