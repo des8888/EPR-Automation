@@ -34,6 +34,7 @@
         "Sub Category",
         "Requestor Name",
         "Date Submitted",
+        "Assigned AP",
         "Currency",
         "Amount",
         "Actions"
@@ -46,6 +47,7 @@
         "Requestor Name",
         "Date Submitted",
         "Date Approved",
+        "Assigned AP",
         "Currency",
         "Amount",
         "Status"

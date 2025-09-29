@@ -1,7 +1,7 @@
 {
-    "BillingFrom": "August 05, 2025",
-    "BillingTo": "July 15, 2025",
-    "DueDate": "September 25, 2025",
+    "BillingFrom": "22",
+    "BillingTo": "30",
+    "DueDate": "30",
     "ModeofPayment":"MANAGER'S CHECK",
     "ReferenceNo": "Automation Testing",
     "Particulars":"AUTOMATION TEST",
@@ -13,7 +13,7 @@
     "Project":"PARTNER'S NIGHT",
     "ChargeCostCenter":"DIST_OPS_OPPM",
     "Capex":"Opex",
-    "NetAmnt":"2000000",
+    "NetAmnt":"900",
 
     "EditSubCat3": "ELECTRICITY",
     "EditDesc": "SAMPLE AUTOMATION TEST EDITED",

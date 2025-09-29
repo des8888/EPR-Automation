@@ -6,8 +6,11 @@ import { time } from "console";
 export default class EPRFields{
     readonly page: Page;
     readonly BillingFrom: Locator;
+    readonly BillingFromDate: Locator;
     readonly BillingTo: Locator;
+    readonly BillingToDate: Locator;
     readonly DueDate: Locator;
+    readonly DueSelectDate: Locator;
     readonly ModeofPayment: Locator;
     readonly MoPList: Locator;
     readonly MopListData: Locator;
@@ -47,8 +50,14 @@ export default class EPRFields{
 
     readonly AmountCol: Locator;
     readonly TotalAmount: Locator;
+
     //Actions column on Trans table
     readonly ActionsCol: Locator;
+    readonly AccActionsCol: Locator;
+    readonly ActionApprove: Locator;
+    readonly ActionAcknowledge: Locator;
+    readonly AcknowledgeReq: Locator;
+    readonly ApproveReq: Locator;
     readonly Edit: Locator;
     readonly Delete: Locator;
     readonly ConfirmDelete: Locator;
@@ -63,9 +72,12 @@ export default class EPRFields{
 
 
     constructor (page: Page){
-        this.BillingFrom = page.locator('input[name="billingPeriodFrom"]')
-        this.BillingTo = page.locator('input[name="billingPeriodTo"]')
-        this.DueDate = page.locator('input[name="datePayable"]')
+        this.BillingFrom = page.getByRole('button', { name: 'Choose date' }).first()
+        this.BillingFromDate = page.getByRole('gridcell', { name: `${dets.BillingFrom}` })
+        this.BillingTo = page.getByRole('button', { name: 'Choose date' }).nth(1)
+        this.BillingToDate = page.getByRole('gridcell', { name: `${dets.BillingTo}` })
+        this.DueDate = page.locator('form div').filter({ hasText: 'Due Date Mode of Payment' }).getByLabel('Choose date')
+        this.DueSelectDate = page.getByRole('gridcell', { name: `${dets.DueDate}` })
         this.ModeofPayment = page.getByRole('textbox', { name: 'Select Mode of Payment' })
         this.MoPList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t");
         const randomNum = Math.floor(Math.random() * 5) + 1;
@@ -78,16 +90,28 @@ export default class EPRFields{
         this.CategoryListData = page.getByRole('button').nth(randomNum2)
         
         this.SubCategory = page.getByRole('textbox', { name: 'Select Sub Category 1' })
-        this.SubCategoryList = page.getByRole('button')
-        
+        this.SubCategoryList = page.getByRole('button').filter({hasText: /^[A-Z\s]+$/,});
+
+        this.SubCategoryListData = page.locator(".MuiList-root.MuiList-padding div[role='button']:visible");
         //const randomNum3 = Math.floor(Math.random() * 10) + 1;
-        this.SubCategoryListData = page.getByRole('button')
+        // const subCategoryListContainer = page.locator(".MuiList-root.MuiList-padding");
+        // this.SubCategoryListData = page
+        // .locator(".MuiList-root.MuiList-padding div[role='button']")
+        // .filter({ hasText: /^[A-Z\s]+$/ });
+
         
         this.SubCategory2 = page.getByRole('textbox', { name: 'Select Sub Category 2' })
-        this.SubCategory2List = page.getByRole('button')
+        this.SubCategory2List = page.getByRole('button').filter({hasText: /^[A-Z\s]+$/,});
+
         //this.SubCategory2ListData = page.getByRole('button', { name: 'COCOSHELL' })
         
-        this.SubCategory2ListData = page.getByRole('button')
+        // this.SubCategory2ListData = page
+        // .locator(".MuiList-root.MuiList-padding div[role='button']")
+        // .filter({ hasText: /^[A-Z\s]+$/ });
+
+        this.SubCategory2ListData = page.locator(".MuiList-root.MuiList-padding div[role='button']:visible");
+
+
 
         this.RefNo = page.getByPlaceholder('Enter Reference Number (max 1000 chars)');
         this.Particulars = page.getByPlaceholder('Enter particulars (max 1000 chars)');
@@ -118,6 +142,11 @@ export default class EPRFields{
         //Actions column on trans table
         //this.ActionsCol = page.locator("//tbody/td[9]");
         this.ActionsCol = page.locator("//tbody/tr/td[11]/button")
+        this.AccActionsCol = page.getByRole('row').getByRole('button')
+        this.ActionApprove = page.getByRole('menuitem', { name: 'Approve' })
+        this.ActionAcknowledge = page.getByRole('menuitem', { name: 'Acknowledge' })
+        this.ApproveReq = page.getByRole('button', { name: 'Approve' })
+        this.AcknowledgeReq = page.getByRole('button', { name: 'Acknowledge' })
 
 
         this.Edit= page.getByText('Edit')
@@ -141,10 +170,13 @@ export default class EPRFields{
         return this.AddTransactionsBtn;
     }
     async InputOnFields(page){
-        await this.BillingFrom.fill(dets.BillingFrom);
+        await this.BillingFrom.click();
+        await this.BillingFromDate.click()
         console.log("SUCESS Input Billing From")
-        await this.BillingTo.fill(dets.BillingTo);
-        await this.DueDate.fill(dets.DueDate);
+        await this.BillingTo.click()
+        await this.BillingToDate.click()
+        await this.DueDate.click()
+        await this.DueSelectDate.first().click()
         await this.ModeofPayment.click();
         await this.MoPList.waitFor({state:'visible'})
         const randomNum = Math.floor(Math.random() * 10) + 1;
@@ -156,20 +188,28 @@ export default class EPRFields{
         await this.CategoryListData.click();
         
         await this.SubCategory.click();
-        await this.SubCategoryList.waitFor({state:'visible'})
+        await this.SubCategoryList.first().waitFor({state:'visible'})
         let count = await this.SubCategoryList.count();
         console.log(`ETOOOOOOOOO: ${count}`)
-        const randomNum3 = Math.floor(Math.random() * count) + 1;
+
+        const options = await this.SubCategoryListData.allTextContents();
+        console.log("Options in dropdown:", options);
+
+
+        const randomNum3 = Math.floor(Math.random() * count);
         await this.SubCategoryListData.nth(randomNum3).click();
 
 
         await this.SubCategory2.click();
-        await this.SubCategory2List.waitFor({state:'visible'})
+        await this.SubCategory2List.first().waitFor({ state: 'visible' });
         let count2 = await this.SubCategory2List.count();
-        console.log(`ETOOOOOOOOO: ${count2}`)
-        let randomNum4 = Math.floor(Math.random() * count2) + 1;
+        console.log(`ETO2: ${count2}`)
+        const options2 = await this.SubCategory2ListData.allTextContents();
+        console.log("Options in dropdown:", options2);
+        let randomNum4 = Math.floor(Math.random() * count2);
         await this.SubCategory2ListData.nth(randomNum4).click();
-
+        // const element =await this.SubCategory2ListData.innerHTML()
+        // // console.log(`ELEMENT ${element}`)
         await this.RefNo.fill(dets.ReferenceNo);
         await this.Particulars.fill(dets.Particulars);
 
@@ -229,13 +269,29 @@ export default class EPRFields{
     async ClickSubmit(){
         await this.SubmitBtn.click();
     }
-    async GetNewEPRNo(){
+    async GetNewEPRNo(): Promise<string> {
         let newEPR = await this.EPRNewNumber.innerText();
-        console.log(newEPR);
+        const requestNumber = newEPR?.match(/\d+/)?.[0] ?? '';
+        console.log(`EPR NUMBER: ${requestNumber}`);
+        return requestNumber;
     }
+
     //FOR TEST
     async ClickActionCol(){
-        await this.ActionsCol.nth(1).click();
+        await this.ActionsCol.first().click();
+    }
+
+    async ClickActionsColAccounting(){
+        await this.AccActionsCol.first().click();
+    }
+
+    async ApproveARequest(){
+        await this.ActionApprove.click()
+        await this.ApproveReq.click();
+    }
+    async AcknowledgeARequest(){
+        await this.ActionAcknowledge.click()
+        await this.AcknowledgeReq.click();
     }
     async ClickDelete(){
         await this.Delete.click();
@@ -264,5 +320,6 @@ export default class EPRFields{
         console.log(`TOTAL OVERAAAAAAAAAAAAAAL: ${totalOverall}`)
         await expect(TOTAL).toBe(total);
     }
+
 
 }

@@ -31,15 +31,26 @@ export default class SharedLocator{
 
     readonly DateSubColumn: Locator;
 
+    readonly Logout: Locator;
+    readonly L1Logout: Locator;
+    readonly YesLogout: Locator;
+
+    //Approvals
+    readonly DoneTab: Locator;
+    readonly Status: Locator;
+    readonly AccStatus: Locator;
+    readonly ApprovalsDashboard: Locator;
+    readonly SelectMultiple: Locator;
     //Actions column
 
-    
+    //TOASTNOTIFICATION
+    readonly Toast:Locator;
 
     constructor(page: Page){
-        this.EPRColumn = page.locator("//tbody//td[1]");
+        this.EPRColumn = page.locator("//tbody/tr[1]/td[1]");
         this.EPRColumn2 = page.locator("//tbody//tr[2]/td[1]");
 
-        this.NoDataMessage = page.locator("p[class='MuiTypography-root MuiTypography-body1 css-rhfifw']");
+        this.NoDataMessage = page.getByText('You currently have no')
 
         this.CategoryInputField = page.locator('input[name="category"]')
         this.CategoryInputArrow = page.locator("button[id$=':r3:']")
@@ -65,8 +76,36 @@ export default class SharedLocator{
         this.SubcategoryXBtn = page.locator("button[id=':r6q:']")
 
         this.DateSubColumn = page.locator("//tbody//td[6]")
-        
 
+        this.Logout = page.locator("button[id=':r0:']");
+        this.L1Logout = page.locator("button[id=':r5:']");
+        this.YesLogout = page.getByRole('button', { name: 'Yes, Logout' })
+
+        this.DoneTab = page.getByRole('button', { name: 'Done' });
+        this.Status = page.locator("//tbody/tr[1]/td[11]")
+        this.AccStatus = page.locator("//tbody/tr[1]/td[12]")
+        this.ApprovalsDashboard = page.getByText('Approvals')
+        this.SelectMultiple = page.locator("button[id=':rj:']");
+
+        //TOASTNOTIFICATION
+        this.Toast = page.getByRole('alert')
+
+    }
+
+    get DoneTabButton() {
+        return this.DoneTab;
+    }
+    async GetStatus(){
+        let text = await this.Status.innerText();
+        console.log(`STATUS: ${text}`)
+    }
+    async AccGetStatus(){
+        let text = await this.AccStatus.innerText();
+        console.log(`STATUS: ${text}`)
+    }
+    async ToastNotificationMessage(){
+        let toastText = await this.Toast.innerText()
+        console.log(`TOAST: ${toastText}`)
     }
     async ClickFunnelFilter(){
         await this.FunnelFilter.click();
@@ -148,6 +187,11 @@ export default class SharedLocator{
         await page.reload()
         await this.SearchField.fill(data.WrongSearchFieldData);
         await page.waitForTimeout(3000);
+        let noMessage = await this.NoDataMessage.innerText();  
+        await expect(noMessage).toBe(data.NoDataMessage);
+    }
+    async ValidateEPRafterApproveonOngoingtable(requestNumber: string){
+        await this.SearchField.fill(requestNumber);
         let noMessage = await this.NoDataMessage.innerText();  
         await expect(noMessage).toBe(data.NoDataMessage);
     }
@@ -278,4 +322,26 @@ export default class SharedLocator{
         const countCat = await this.CategoryColumn.count();
         console.log(`Category column count: ${countCat}`);
     }
+
+    async ClickLogout(){
+        await this.Logout.click();
+        await this.YesLogout.click();
+    }
+    async ClickLogoutL1(){
+        await this.L1Logout.click();
+        await this.YesLogout.click();
+    }
+
+    async ClickApprovals(){
+        await this.ApprovalsDashboard.click();
+        await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
+    }
+
+    async UseSearch(requestNumber: string) {
+        await this.SearchField.fill(requestNumber);
+        await expect(this.EPRColumn.first()).toHaveText(/\S/, { timeout: 5000 });
+        const eprNo = await this.EPRColumn.first().innerText();
+        await expect(eprNo).toBe(requestNumber);
+    }
+
 }

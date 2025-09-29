@@ -18,6 +18,7 @@ export default class FieldErrors{
     readonly SubCat2: Locator;
     readonly RefNo: Locator;
     readonly FileAttachment: Locator;
+    readonly FileAttach: Locator;
     readonly Particulars: Locator;
     readonly AddTransactionsBtn: Locator;
     readonly AddTransactions: Locator;
@@ -35,7 +36,7 @@ export default class FieldErrors{
 
     constructor(page: Page){
         this.page = page;
-        this.CompanyXbtn = page.locator("[id=':ri:']");
+        this.CompanyXbtn = page.locator('[id=":rc:"]');
         this.CompanyInputField = page.getByRole('textbox', { name: 'Select a Company' });
         this.Company = page.getByText('Please select a valid Company')
         this.Payee = page.getByText('Payee is required and must be')
@@ -48,6 +49,8 @@ export default class FieldErrors{
         this.SubCat2 = page.getByText('Sub Category 2 is required')
         this.RefNo = page.getByText('Reference number is required')
         this.FileAttachment = page.getByText('At least one file is required')
+        this.FileAttach = page.locator(`input[type="file"]`)
+
         this.Particulars = page.getByText('Particulars is required')
 
 
@@ -158,5 +161,13 @@ export default class FieldErrors{
         console.log("NET AMOUNT ERROR MESSAGE PASSED")
     }
 
+    
+    async FileAttachmentError(page){
+        await this.FileAttach.setInputFiles([
+            'files/invalid files/file_1.txt'
+        ]);
+
+        
+    }
 
 }

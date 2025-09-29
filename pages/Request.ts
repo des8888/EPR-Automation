@@ -20,7 +20,7 @@ export default class RequestPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.NewRequestBtn = page.locator("button[id=':r6:']");
+        this.NewRequestBtn = page.getByRole('button', { name: 'NEW REQUEST' });
         this.ApproverName = page.getByRole('combobox', { name: 'Select Approver' });
         this.ApproverData = page.getByRole('option', { name: data.ReqName });
         this.ApplyFilterBtn = page.getByRole('button', { name: 'Apply Filter' });
@@ -32,7 +32,7 @@ export default class RequestPage {
         this.ViewAllRequests = page.getByText('View All Requests', { exact: true });
         this.PendingReqTab = page.getByRole('button', { name: 'Pending Request' });
         this.SummaryTab = page.getByRole('button', { name: 'Summary' });
-        this.PendingReqHeaders = page.locator('//th//div');
+        this.PendingReqHeaders = page.locator('th');
     }
 
     get ClickViewAllReq() {

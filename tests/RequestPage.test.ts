@@ -5,8 +5,23 @@ import url from '../data/pageUrl.json';
 import { waitForDebugger } from 'inspector';
 import SharedLocator from '../pages/common/shared-locators';
 import AccountingPage from '../pages/Accounting';
+import { ensureLogin } from '../helpers/login';
+import Login from '../pages/loginPage';
 
-const reqLandingPage = url.requestLandingPage;
+const reqLandingPage = url.users.requestor.requestLandingPage;
+test.describe('Requestor Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginFlow = new Login(page);
+    await loginFlow.login(
+      process.env.USER!,
+      process.env.PW!,
+      './auth/requestor.json',
+      reqLandingPage
+    );
+  });
+
+
+
 test("Create New Request", async ({ page }) => {
 
     const requestPage = new RequestPage(page);
@@ -27,15 +42,15 @@ test("Create New Request", async ({ page }) => {
     await eprFormFields.ClickSubmit();
     await requestPage.waitForViewofViewAllReq();
     await page.waitForTimeout(5000);
-    await eprFormFields.GetNewEPRNo();
+    const requestNumber = await eprFormFields.GetNewEPRNo();
 
     console.log(`✅ Request creation ✅ PASSED`);
 });
 
 
 
-// test("Create New Request 3 times", async ({ page }) => {
-//   for (let i = 1; i <= 2; i++) {
+// test("Create New Request 10 times", async ({ page }) => {
+//   for (let i = 1; i <= 10; i++) {
 //     console.log(`▶ Creating request #${i}`);
 
 //     const requestPage = new RequestPage(page);
@@ -48,19 +63,15 @@ test("Create New Request", async ({ page }) => {
 //     await requestPage.ClickNewRequest();
 //     await eprFormFields.AddTransBtn().waitFor();
 //     await eprFormFields.InputOnFields(page);
-//     for (let i = 1; i <= 2; i++) {
 //     await eprFormFields.AddTransBtn().click();
-//     await eprFormFields.InputFieldsonTransactions(page);
+//     await eprFormFields.InputFieldsonTransactions2(page);
 //     await eprFormFields.ClickAddNewTransactions();
-//     }
-//     await eprFormFields.CountTotalAmount();
-//     await eprFormFields.ClickActionCol();
-//     // await eprFormFields.ClickNext();
-//     // await eprFormFields.ClickSubmitRequest();
-//     // await eprFormFields.ClickSubmit();
-//     // await requestPage.waitForViewofViewAllReq();
-//     // await page.waitForTimeout(5000);
-//     // await eprFormFields.GetNewEPRNo();
+//     await eprFormFields.ClickNext();
+//     await eprFormFields.ClickSubmitRequest();
+//     await eprFormFields.ClickSubmit();
+//     await requestPage.waitForViewofViewAllReq();
+//     await page.waitForTimeout(5000);
+//     const requestNumber = await eprFormFields.GetNewEPRNo();
 
 //     console.log(`✅ Request #${i} creation ✅ PASSED`);
 //   }
@@ -163,3 +174,4 @@ test("Create New Request", async ({ page }) => {
 //     console.log("Validate Total amount after Deletion ✅ PASSED")
 // })
 
+});

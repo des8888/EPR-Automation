@@ -11,27 +11,42 @@ dotenv.config();
 if (!fs.existsSync('.auth')) {
   fs.mkdirSync('.auth');
 }
+// setup('write login session data', async ({ page }) => {
+//   const reqPage = new RequestPage(page);
+//   const loginPage = new Login(page);
+
+//   await page.goto(url.loginURL);
+
+//   const [popup] = await Promise.all([
+//     page.context().waitForEvent('page'),
+//     loginPage.GoogleLogin.click(),
+//   ]);
+
+//   await popup.waitForLoadState();
+//   await popup.fill('input[type="email"]', process.env.USER!);
+//   await popup.click('button:has-text("Next")');
+//   await popup.waitForTimeout(1000);
+//   await popup.fill('input[type="password"]', process.env.PW!);
+//   await popup.click('button:has-text("Next")');
+//   await popup.waitForEvent('close');
+
+//   await expect(reqPage.NewRequestButton).toBeVisible({ timeout: 10000 });
+
+//   // Save Storage State
+//   await page.context().storageState({ path: './auth/storageState.json' });
+// });
+
 setup('write login session data', async ({ page }) => {
   const reqPage = new RequestPage(page);
   const loginPage = new Login(page);
 
   await page.goto(url.loginURL);
 
-  const [popup] = await Promise.all([
-    page.context().waitForEvent('page'),
-    loginPage.GoogleLogin.click(),
-  ]);
+  await loginPage.InputCredentialsRequestor();
 
-  await popup.waitForLoadState();
-  await popup.fill('input[type="email"]', process.env.USER!);
-  await popup.click('button:has-text("Next")');
-  await popup.waitForTimeout(1000);
-  await popup.fill('input[type="password"]', process.env.PW!);
-  await popup.click('button:has-text("Next")');
-  await popup.waitForEvent('close');
+  // Wait for some element that proves login succeeded
+  await reqPage.NewRequestButton.waitFor({state:'visible', timeout: 20000})
 
-  await expect(reqPage.NewRequestButton).toBeVisible({ timeout: 10000 });
-
-  // Save Storage State
+  // Save Storage State for reuse
   await page.context().storageState({ path: './auth/storageState.json' });
 });
