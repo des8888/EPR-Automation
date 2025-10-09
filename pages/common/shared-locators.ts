@@ -3,6 +3,7 @@ import data from '../../data/filterData.json';
 export default class SharedLocator{
     readonly page: Page;
     readonly EPRColumn: Locator;
+    readonly EPRColumnAcc: Locator;
     readonly EPRColumn2: Locator;
     readonly NoDataMessage: Locator;
     readonly CategoryInputField: Locator;
@@ -18,6 +19,7 @@ export default class SharedLocator{
 
     readonly Export: Locator;
     readonly SearchField: Locator;
+    readonly SearchFieldCancel: Locator;
     readonly CategoryColumn: Locator;
     readonly CategoryDataSelection: Locator;
     readonly SubCategoryColumn: Locator;
@@ -32,6 +34,7 @@ export default class SharedLocator{
     readonly DateSubColumn: Locator;
 
     readonly Logout: Locator;
+    readonly AccLogout: Locator;
     readonly L1Logout: Locator;
     readonly YesLogout: Locator;
 
@@ -48,9 +51,10 @@ export default class SharedLocator{
 
     constructor(page: Page){
         this.EPRColumn = page.locator("//tbody/tr[1]/td[1]");
+        this.EPRColumnAcc = page.locator("//tbody/tr[1]/td[2]");
         this.EPRColumn2 = page.locator("//tbody//tr[2]/td[1]");
 
-        this.NoDataMessage = page.getByText('You currently have no')
+        this.NoDataMessage = page.getByText('You currently have no transaction added here.')
 
         this.CategoryInputField = page.locator('input[name="category"]')
         this.CategoryInputArrow = page.locator("button[id$=':r3:']")
@@ -66,6 +70,7 @@ export default class SharedLocator{
         this.SubCategoryColumn = page.locator("//tbody//td[4]")
 
         this.SearchField = page.locator("input[name$='searchKey']")
+        this.SearchFieldCancel = page.locator('form').getByRole('button').filter({ hasText: /^$/ }).nth(4)
 
         this.DateReqFIlterFrom =page.locator('input[name="startDateSubForm"]');
         this.DateReqFIlterTo = page.locator('input[name="endDateSubForm"]');
@@ -77,15 +82,16 @@ export default class SharedLocator{
 
         this.DateSubColumn = page.locator("//tbody//td[6]")
 
-        this.Logout = page.locator("button[id=':r0:']");
-        this.L1Logout = page.locator("button[id=':r5:']");
+        this.Logout = page.locator("(//button)[1]");
+        this.AccLogout = page.locator("(//button)[1]");
+        this.L1Logout = page.locator("(//button)[1]");
         this.YesLogout = page.getByRole('button', { name: 'Yes, Logout' })
 
         this.DoneTab = page.getByRole('button', { name: 'Done' });
         this.Status = page.locator("//tbody/tr[1]/td[11]")
-        this.AccStatus = page.locator("//tbody/tr[1]/td[12]")
+        this.AccStatus = page.locator("//tbody/tr[1]/td[13]")
         this.ApprovalsDashboard = page.getByText('Approvals')
-        this.SelectMultiple = page.locator("button[id=':rj:']");
+        this.SelectMultiple = page.getByRole('button', { name: 'Select Multiple' })
 
         //TOASTNOTIFICATION
         this.Toast = page.getByRole('alert')
@@ -97,15 +103,16 @@ export default class SharedLocator{
     }
     async GetStatus(){
         let text = await this.Status.innerText();
-        console.log(`STATUS: ${text}`)
+        console.log(`EPR STATUS: ${text}`)
     }
     async AccGetStatus(){
         let text = await this.AccStatus.innerText();
         console.log(`STATUS: ${text}`)
+        await expect(text).toBe('Acknowledged by Accounting')
     }
     async ToastNotificationMessage(){
         let toastText = await this.Toast.innerText()
-        console.log(`TOAST: ${toastText}`)
+        console.log(`TOAST NOTIFICATION: ${toastText}`)
     }
     async ClickFunnelFilter(){
         await this.FunnelFilter.click();
@@ -331,17 +338,54 @@ export default class SharedLocator{
         await this.L1Logout.click();
         await this.YesLogout.click();
     }
+    async ClickLogoutAcc(){
+        await this.AccLogout.click();
+        await this.YesLogout.click();
+    }
 
     async ClickApprovals(){
         await this.ApprovalsDashboard.click();
         await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
     }
 
+    async WaitForSelectMultipleBtn(){
+        await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
+    }
+
     async UseSearch(requestNumber: string) {
+        // Fill search field
         await this.SearchField.fill(requestNumber);
-        await expect(this.EPRColumn.first()).toHaveText(/\S/, { timeout: 5000 });
+        await this.SearchField.press('Enter'); // trigger search
+
+        // Wait until the first EPR cell contains the expected request number
+        await expect(this.EPRColumn.first(), {
+            timeout: 50000
+        }).toHaveText(requestNumber);
+
+        // Optionally, get the text after waiting
         const eprNo = await this.EPRColumn.first().innerText();
-        await expect(eprNo).toBe(requestNumber);
+        console.log(`EPR found: ${eprNo}`);
+    }
+    async UseSearchAccounting(requestNumber: string) {
+        await this.SearchField.fill(requestNumber);
+        await this.SearchField.press('Enter'); // trigger search
+        // Wait until the first EPR cell contains the expected request number
+        await expect(this.EPRColumnAcc, {
+            timeout: 50000
+        }).toHaveText(requestNumber);
+
+        // Optionally, get the text after waiting
+        const eprNo = await this.EPRColumnAcc.innerText();
+        console.log(`EPR found: ${eprNo}`);
+    }
+
+    async ValidateUseSearchforNoData(requestNumber: string) {
+        await this.SearchField.fill(requestNumber);
+        await this.SearchField.press('Enter'); // trigger search
+        await this.SearchField.fill(requestNumber);
+        await this.SearchField.press('Enter'); // trigger search
+        await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 5000 });
+
     }
 
 }

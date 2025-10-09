@@ -55,9 +55,14 @@ export default class EPRFields{
     readonly ActionsCol: Locator;
     readonly AccActionsCol: Locator;
     readonly ActionApprove: Locator;
+    readonly ActionReject: Locator;
+    readonly ActionReturn: Locator;
     readonly ActionAcknowledge: Locator;
     readonly AcknowledgeReq: Locator;
     readonly ApproveReq: Locator;
+    readonly RejectReq: Locator;
+    readonly ReturnReq: Locator;
+    readonly ReturnField: Locator;
     readonly Edit: Locator;
     readonly Delete: Locator;
     readonly ConfirmDelete: Locator;
@@ -75,7 +80,7 @@ export default class EPRFields{
         this.BillingFrom = page.getByRole('button', { name: 'Choose date' }).first()
         this.BillingFromDate = page.getByRole('gridcell', { name: `${dets.BillingFrom}` })
         this.BillingTo = page.getByRole('button', { name: 'Choose date' }).nth(1)
-        this.BillingToDate = page.getByRole('gridcell', { name: `${dets.BillingTo}` })
+        this.BillingToDate = page.getByRole('gridcell', { name: `${dets.BillingTo}` }).first()
         this.DueDate = page.locator('form div').filter({ hasText: 'Due Date Mode of Payment' }).getByLabel('Choose date')
         this.DueSelectDate = page.getByRole('gridcell', { name: `${dets.DueDate}` })
         this.ModeofPayment = page.getByRole('textbox', { name: 'Select Mode of Payment' })
@@ -144,8 +149,17 @@ export default class EPRFields{
         this.ActionsCol = page.locator("//tbody/tr/td[11]/button")
         this.AccActionsCol = page.getByRole('row').getByRole('button')
         this.ActionApprove = page.getByRole('menuitem', { name: 'Approve' })
-        this.ActionAcknowledge = page.getByRole('menuitem', { name: 'Acknowledge' })
+        this.ActionReject = page.getByRole('menuitem', { name: 'Reject' })
+        this.ActionReturn = page.getByRole('menuitem', { name: 'Return' })
+
+
         this.ApproveReq = page.getByRole('button', { name: 'Approve' })
+        this.RejectReq = page.getByRole('button', { name: 'Reject' })
+        this.ReturnReq = page.getByRole('button', { name: 'Return' })
+        this.ReturnField = page.getByRole('textbox', { name: 'Indicate missing documents or' })
+
+
+        this.ActionAcknowledge = page.getByRole('menuitem', { name: 'Acknowledge' })
         this.AcknowledgeReq = page.getByRole('button', { name: 'Acknowledge' })
 
 
@@ -252,11 +266,23 @@ export default class EPRFields{
         await this.ChargeCostCenterData.click();
         await this.CapexOpexCogs.fill(dets.Capex);
         await this.CapexOpexCogsData.click();
-        
-        await this.NetAmnt.fill(dets.NetAmnt);
+    
         await this.Vatable.click();
        
     }
+
+    async FillNetAmtBelow100k(){
+        await this.NetAmnt.fill(dets.NetAmnt);;
+    }
+    
+    async FillNetAmtUpTo500k(){
+        await this.NetAmnt.fill(dets.NetAmntUpto500k);;
+    }
+    
+    async FillNetAmtupTo1M(){
+        await this.NetAmnt.fill(dets.NetAmntUpto1M);;
+    }
+    
     async ClickAddNewTransactions(){
          await this.sidepanelAddTrans.click();
     }
@@ -288,6 +314,17 @@ export default class EPRFields{
     async ApproveARequest(){
         await this.ActionApprove.click()
         await this.ApproveReq.click();
+    }
+
+    async RejectARequest(){
+        await this.ActionReject.click()
+        await this.RejectReq.click();
+    }
+
+    async ReturnARequest(){
+        await this.ActionReturn.click()
+        await this.ReturnField.fill(dets.ReturnMess);
+        await this.ReturnReq.click();
     }
     async AcknowledgeARequest(){
         await this.ActionAcknowledge.click()

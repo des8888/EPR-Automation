@@ -2,7 +2,9 @@
   "name": "epr-automation",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test --reporter=html && playwright show-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -14,4 +16,6 @@
   "dependencies": {
     "dotenv": "^17.2.1"
   }
+
+
 }

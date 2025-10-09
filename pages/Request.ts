@@ -35,8 +35,9 @@ export default class RequestPage {
         this.PendingReqHeaders = page.locator('th');
     }
 
-    get ClickViewAllReq() {
-        return this.ViewAllRequests;
+    async ClickViewAllReq() {
+        await this.ViewAllRequests.click();
+        await expect(this.EPRNoColumn).toHaveText(/\S/, { timeout: 5000 });
     }
     get NewRequestButton() {
         return this.NewRequestBtn;

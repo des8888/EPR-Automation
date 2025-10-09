@@ -15,32 +15,8 @@ export default class Login {
     this.page = page;
     this.username = page.locator(`input`).first(); 
     this.password = page.locator(`//input[@type='password']`);
-    this.submitButton = page.locator('button:has-text("SUBMIT")');
+    this.submitButton = page.locator('button:has-text("Login")');
   }
-  // async InputCredentialsRequestor() {
-  //   await this.page.goto(url.loginURL);
-  //   await this.username.fill(process.env.USER!);  // env variable for username
-  //   await this.password.fill(process.env.PW!);    // env variable for password
-  //   await this.submitButton.click();
-
-    
-  // await this.page.waitForURL(url.users.requestor.requestLandingPage);  // ✅ ensure login is successful
-
-  // await this.page.context().storageState({ path: './auth/storageState.json' });
-  // }
-
-  // async InputCredsApprover1(){
-  //   await this.page.goto(url.loginURL);
-  //   await this.username.fill(process.env.L1!);  // env variable for username
-  //   await this.password.fill(process.env.L1PW!);    // env variable for password
-  //   await this.submitButton.click();
-
-    
-  // await this.page.waitForURL(url.users.requestor.requestLandingPage);  // ✅ ensure login is successful
-
-  // await this.page.context().storageState({ path: './auth/approver1.json' });
-  // }
-
   async login(username: string, password: string, storagePath: string, redirectUrl: string) {
   await this.page.goto(url.loginURL);
   await this.username.fill(username);

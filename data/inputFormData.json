@@ -13,7 +13,9 @@
     "Project":"PARTNER'S NIGHT",
     "ChargeCostCenter":"DIST_OPS_OPPM",
     "Capex":"Opex",
-    "NetAmnt":"900",
+    "NetAmnt":"100000",
+    "NetAmntUpto500k":"500000",
+    "NetAmntUpto1M":"1000000",
 
     "EditSubCat3": "ELECTRICITY",
     "EditDesc": "SAMPLE AUTOMATION TEST EDITED",
@@ -22,5 +24,7 @@
     "EditProject":"PROJECT ACTIVATE BOHOL",
     "EditCharge":"BA_RM",
     "EditCapex":"Capex",
-    "EditNetAmnt":"1500"
+    "EditNetAmnt":"1500",
+
+    "ReturnMess": "Incomplete Documents"
 }

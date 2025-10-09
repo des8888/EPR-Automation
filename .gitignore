@@ -5,4 +5,5 @@ node_modules/
 /playwright/.cache/
 files/
 auth/
+.auth/
 .env
