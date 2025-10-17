@@ -13,7 +13,7 @@
     "WrongSearchFieldData":"20001735",
 
     "ReqName": "Desiree Balderama",
-    "NoDataMessage":"You currently have no transaction added here.",
+    "NoDataMessage":"No results found.",
 
     "DateReqFromUI":"June 19, 2025",
     "DateReqToUI": "June 19, 2025"

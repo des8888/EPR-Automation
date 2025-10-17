@@ -314,6 +314,7 @@ export default class EPRFields{
     async ApproveARequest(){
         await this.ActionApprove.click()
         await this.ApproveReq.click();
+        await this.ApproveReq.waitFor({ state: 'hidden', timeout: 20000 });
     }
 
     async RejectARequest(){
@@ -329,6 +330,7 @@ export default class EPRFields{
     async AcknowledgeARequest(){
         await this.ActionAcknowledge.click()
         await this.AcknowledgeReq.click();
+        await this.AcknowledgeReq.waitFor({ state: 'hidden', timeout: 20000 });
     }
     async ClickDelete(){
         await this.Delete.click();

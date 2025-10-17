@@ -10,15 +10,15 @@ import Login from '../pages/loginPage';
 
 const reqLandingPage = url.users.requestor.requestLandingPage;
 test.describe('Requestor Flow', () => {
-  // test.beforeEach(async ({ page }) => {
-  //   const loginFlow = new Login(page);
-  //   await loginFlow.login(
-  //     process.env.USER!,
-  //     process.env.PW!,
-  //     './auth/requestor.json',
-  //     reqLandingPage
-  //   );
-  // });
+  test.beforeEach(async ({ page }) => {
+    const loginFlow = new Login(page);
+    await loginFlow.login(
+      process.env.USER!,
+      process.env.PW!,
+      './auth/requestor.json',
+      reqLandingPage
+    );
+  });
 
 
 

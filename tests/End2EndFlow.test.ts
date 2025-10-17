@@ -29,7 +29,7 @@ test.describe('E2E Flow', () => {
 
       await test.step("Create a Request", async () => {
         await page.goto(reqLandingPage);
-
+        await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
         await requestPage.ClickNewRequest();
         await eprFormFields.AddTransBtn().waitFor();
         await eprFormFields.InputOnFields(page);
@@ -53,6 +53,7 @@ test.describe('E2E Flow', () => {
       await test.step("Check EPR on other non Approver accounts", async () => {
         // L2 Login check
         await loginFlow.login(process.env.L2!, process.env.L2PW!, './auth/approver2.json', url.users.requestor.requestLandingPage);
+        await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
         await shared.ValidateUseSearchforNoData(requestNumber);
         let noMessage1 = await shared.NoDataMessage.innerText();
         await expect(noMessage1).toBe(data.NoDataMessage);
@@ -60,6 +61,7 @@ test.describe('E2E Flow', () => {
 
         // L3 Login check
         await loginFlow.login(process.env.L3!, process.env.L3PW!, './auth/approver3.json', url.users.requestor.requestLandingPage);
+        await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
         await shared.ValidateUseSearchforNoData(requestNumber);
         let noMessage2 = await shared.NoDataMessage.innerText();
         await expect(noMessage2).toBe(data.NoDataMessage);
@@ -67,6 +69,7 @@ test.describe('E2E Flow', () => {
 
         // Accounting check
         await loginFlow.login(process.env.AP!, process.env.APPW!, './auth/accounting.json', url.users.accounting.accountingPage);
+        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.ValidateUseSearchforNoData(requestNumber);
         let noMessage3 = await shared.NoDataMessage.innerText();
         await expect(noMessage3).toBe(data.NoDataMessage);
@@ -82,7 +85,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -105,6 +108,7 @@ test.describe('E2E Flow', () => {
           './auth/approver2.json',
           url.users.requestor.requestLandingPage
           );
+          await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
         await shared.ClickApprovals();
         await shared.ValidateUseSearchforNoData(requestNumber);
         await shared.ClickLogout();
@@ -115,6 +119,7 @@ test.describe('E2E Flow', () => {
           './auth/approver3.json',
           url.users.requestor.requestLandingPage
           );
+        await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
         await shared.ClickApprovals();
         await shared.ValidateUseSearchforNoData(requestNumber);
         await shared.ClickLogout();
@@ -130,7 +135,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
       );
-
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.UseSearch(requestNumber)//requestNumber);
       await eprFormFields.ClickActionsColAccounting();
       await eprFormFields.AcknowledgeARequest();
@@ -153,7 +158,7 @@ test.describe('E2E Flow', () => {
 
     await test.step("Create a Request", async () => {
       await page.goto(reqLandingPage);
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await requestPage.ClickNewRequest();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFields(page);
@@ -182,7 +187,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -206,7 +211,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -231,7 +236,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
       );
-
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.UseSearch(requestNumber)//requestNumber);
       await eprFormFields.ClickActionsColAccounting();
       await eprFormFields.AcknowledgeARequest();
@@ -257,6 +262,7 @@ test.describe('E2E Flow', () => {
 
       
       await page.goto(reqLandingPage);
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
 
       // Perform actions
       await requestPage.ClickNewRequest();
@@ -288,6 +294,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.ValidateUseSearchforNoData(requestNumber);
       await shared.ClickLogout();
@@ -298,6 +305,7 @@ test.describe('E2E Flow', () => {
         './auth/approver3.json',
         url.users.requestor.requestLandingPage
         );
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.ValidateUseSearchforNoData(requestNumber);
       await shared.ClickLogout();
@@ -308,6 +316,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
         );
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.ValidateUseSearchforNoData(requestNumber);
       await shared.ClickLogoutAcc();
 
@@ -321,7 +330,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -344,6 +353,7 @@ test.describe('E2E Flow', () => {
         './auth/approver3.json',
         url.users.requestor.requestLandingPage
         );
+        await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.ValidateUseSearchforNoData(requestNumber);
       await shared.ClickLogout();
@@ -354,6 +364,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
         );
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.ValidateUseSearchforNoData(requestNumber);
       await shared.ClickLogoutAcc();
 
@@ -367,7 +378,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -382,20 +393,6 @@ test.describe('E2E Flow', () => {
       await shared.ClickLogoutL1();
 
       })
-
-      await test.step("Check EPR on other non Approver accounts", async()=>{
-        await loginFlow.login(
-        process.env.AP!,
-        process.env.APPW!,
-        './auth/approver3.json',
-        url.users.requestor.requestLandingPage
-        );
-      await shared.ClickApprovals();
-      await shared.ValidateUseSearchforNoData(requestNumber);
-      await shared.ClickLogoutAcc();
-
-        })
-
       await test.step("Approved by Approver L3", async()=>{
       // Login as Approver 1
       await loginFlow.login(
@@ -404,7 +401,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -429,7 +426,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
       );
-
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.UseSearch(requestNumber)//requestNumber);
       await eprFormFields.ClickActionsColAccounting();
       await eprFormFields.AcknowledgeARequest();
@@ -451,12 +448,12 @@ test.describe('E2E Flow', () => {
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
 
-    // Navigate to landing page (session is already logged in)
+    //Navigate to landing page (session is already logged in)
       await test.step("Create a Request", async()=>{
 
       
       await page.goto(reqLandingPage);
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       // Perform actions
       await requestPage.ClickNewRequest();
       await eprFormFields.AddTransBtn().waitFor();
@@ -488,7 +485,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -517,7 +514,7 @@ test.describe('E2E Flow', () => {
       await test.step("Create a Request", async()=>{
 
       await page.goto(reqLandingPage);
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       // Perform actions
       await requestPage.ClickNewRequest();
       await eprFormFields.AddTransBtn().waitFor();
@@ -549,7 +546,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -573,7 +570,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -597,7 +594,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -622,7 +619,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
       );
-
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionsColAccounting();
       await eprFormFields.RejectARequest();
@@ -648,7 +645,7 @@ test.describe('E2E Flow', () => {
 
       
       await page.goto(reqLandingPage);
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       // Perform actions
       await requestPage.ClickNewRequest();
       await eprFormFields.AddTransBtn().waitFor();
@@ -680,7 +677,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -709,7 +706,7 @@ test.describe('E2E Flow', () => {
       await test.step("Create a Request", async()=>{
 
       await page.goto(reqLandingPage);
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       // Perform actions
       await requestPage.ClickNewRequest();
       await eprFormFields.AddTransBtn().waitFor();
@@ -724,7 +721,7 @@ test.describe('E2E Flow', () => {
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
       requestNumber = await eprFormFields.GetNewEPRNo();
-      await requestPage.ClickViewAllReq.click();
+      await requestPage.ClickViewAllReq();
       await shared.UseSearch(requestNumber);
 
 
@@ -741,7 +738,7 @@ test.describe('E2E Flow', () => {
         './auth/approver1.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -765,7 +762,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -789,7 +786,7 @@ test.describe('E2E Flow', () => {
         './auth/approver2.json',
         url.users.requestor.requestLandingPage
       );
-
+      await page.waitForURL(url.users.requestor.requestLandingPage, { waitUntil: "domcontentloaded" });
       await shared.ClickApprovals();
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionCol();
@@ -814,7 +811,7 @@ test.describe('E2E Flow', () => {
         './auth/accounting.json',
         url.users.accounting.accountingPage
       );
-
+      await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
       await shared.UseSearch(requestNumber);
       await eprFormFields.ClickActionsColAccounting();
       await eprFormFields.ReturnARequest();

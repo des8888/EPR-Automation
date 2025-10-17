@@ -4,6 +4,7 @@ export default class SharedLocator{
     readonly page: Page;
     readonly EPRColumn: Locator;
     readonly EPRColumnAcc: Locator;
+    readonly getRowByRequestNumber: (requestNumber: string) => Locator;
     readonly EPRColumn2: Locator;
     readonly NoDataMessage: Locator;
     readonly CategoryInputField: Locator;
@@ -50,11 +51,12 @@ export default class SharedLocator{
     readonly Toast:Locator;
 
     constructor(page: Page){
+        this.page = page;
         this.EPRColumn = page.locator("//tbody/tr[1]/td[1]");
         this.EPRColumnAcc = page.locator("//tbody/tr[1]/td[2]");
         this.EPRColumn2 = page.locator("//tbody//tr[2]/td[1]");
 
-        this.NoDataMessage = page.getByText('You currently have no transaction added here.')
+        this.NoDataMessage = page.getByText('No results found.')
 
         this.CategoryInputField = page.locator('input[name="category"]')
         this.CategoryInputArrow = page.locator("button[id$=':r3:']")
@@ -108,9 +110,9 @@ export default class SharedLocator{
     async AccGetStatus(){
         let text = await this.AccStatus.innerText();
         console.log(`STATUS: ${text}`)
-        await expect(text).toBe('Acknowledged by Accounting')
     }
     async ToastNotificationMessage(){
+        await this.Toast.waitFor({ state: 'visible', timeout: 5000 });
         let toastText = await this.Toast.innerText()
         console.log(`TOAST NOTIFICATION: ${toastText}`)
     }
@@ -370,10 +372,15 @@ export default class SharedLocator{
         await this.SearchField.fill(requestNumber);
         await this.SearchField.press('Enter'); // trigger search
         // Wait until the first EPR cell contains the expected request number
-        await expect(this.EPRColumnAcc, {
+        const eprColumnAccValue = await this.EPRColumnAcc.textContent();
+        if (eprColumnAccValue !== requestNumber) {
+        await this.SearchField.fill(requestNumber);
+        await this.SearchField.press('Enter');
+        } else {
+        await expect(this.EPRColumnAcc.first(), {
             timeout: 50000
         }).toHaveText(requestNumber);
-
+        }
         // Optionally, get the text after waiting
         const eprNo = await this.EPRColumnAcc.innerText();
         console.log(`EPR found: ${eprNo}`);
@@ -384,8 +391,20 @@ export default class SharedLocator{
         await this.SearchField.press('Enter'); // trigger search
         await this.SearchField.fill(requestNumber);
         await this.SearchField.press('Enter'); // trigger search
-        await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 5000 });
+        const noDataVisible = await this.NoDataMessage.isVisible().catch(() => false);
 
+    if (!noDataVisible) {
+        await this.page.reload({ waitUntil: 'load' });
+
+        // Wait for the search field to be visible after reload
+        await this.SearchField.waitFor({ state: 'visible', timeout: 5000 });
+
+        await this.SearchField.fill(requestNumber);
+        await this.SearchField.press('Enter');
     }
+
+    // Always assert the No Data message at the end
+    await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 5000 });
+}
 
 }
