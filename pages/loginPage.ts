@@ -22,7 +22,7 @@ export default class Login {
   await this.username.fill(username);
   await this.password.fill(password);
   await this.submitButton.click();
-  await this.page.waitForURL(redirectUrl);
+  await this.page.locator('text=Expense Payment Requests').waitFor({ state: 'visible', timeout: 300000 });
   await this.page.context().storageState({ path: storagePath });
 }
   

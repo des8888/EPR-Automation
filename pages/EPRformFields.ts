@@ -1,7 +1,7 @@
 import { Locator, Page, expect} from "@playwright/test";
 import dets from '../data/inputFormData.json'
-import { read } from "fs";
-import { time } from "console";
+import { saveEPRToFile } from "../utils/fileUtils";
+import EPR from "../data/eprData.json"
 
 export default class EPRFields{
     readonly page: Page;
@@ -77,11 +77,12 @@ export default class EPRFields{
 
 
     constructor (page: Page){
+        this.page = page;
         this.BillingFrom = page.getByRole('button', { name: 'Choose date' }).first()
         this.BillingFromDate = page.getByRole('gridcell', { name: `${dets.BillingFrom}` })
         this.BillingTo = page.getByRole('button', { name: 'Choose date' }).nth(1)
         this.BillingToDate = page.getByRole('gridcell', { name: `${dets.BillingTo}` }).first()
-        this.DueDate = page.locator('form div').filter({ hasText: 'Due Date Mode of Payment' }).getByLabel('Choose date')
+        this.DueDate = page.getByRole('button', { name: 'Choose date', exact: true })
         this.DueSelectDate = page.getByRole('gridcell', { name: `${dets.DueDate}` })
         this.ModeofPayment = page.getByRole('textbox', { name: 'Select Mode of Payment' })
         this.MoPList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t");
@@ -146,7 +147,7 @@ export default class EPRFields{
         this.TotalAmount = page.locator('.MuiTypography-root.MuiTypography-h6.css-1kwadbg')
         //Actions column on trans table
         //this.ActionsCol = page.locator("//tbody/td[9]");
-        this.ActionsCol = page.locator("//tbody/tr/td[11]/button")
+        this.ActionsCol = page.getByRole('row').getByRole('button')
         this.AccActionsCol = page.getByRole('row').getByRole('button')
         this.ActionApprove = page.getByRole('menuitem', { name: 'Approve' })
         this.ActionReject = page.getByRole('menuitem', { name: 'Reject' })
@@ -295,16 +296,27 @@ export default class EPRFields{
     async ClickSubmit(){
         await this.SubmitBtn.click();
     }
+
+    
     async GetNewEPRNo(): Promise<string> {
         let newEPR = await this.EPRNewNumber.innerText();
         const requestNumber = newEPR?.match(/\d+/)?.[0] ?? '';
         console.log(`EPR NUMBER: ${requestNumber}`);
+        await saveEPRToFile(requestNumber);  // save to JSON
         return requestNumber;
     }
 
     //FOR TEST
-    async ClickActionCol(){
-        await this.ActionsCol.first().click();
+    async ClickActionCol() {
+        // Find the row with your EPR number
+        const row = this.page.getByRole('row', { name: EPR.latestEPR });
+        await row.waitFor({ state: 'visible', timeout: 60000 });
+
+        // Then get the button inside that row
+        const actionButton = row.getByRole('button');
+        await actionButton.click();
+
+        console.log(`Clicked Action button for EPR: ${EPR.latestEPR}`);
     }
 
     async ClickActionsColAccounting(){
@@ -314,7 +326,7 @@ export default class EPRFields{
     async ApproveARequest(){
         await this.ActionApprove.click()
         await this.ApproveReq.click();
-        await this.ApproveReq.waitFor({ state: 'hidden', timeout: 20000 });
+        await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
     }
 
     async RejectARequest(){

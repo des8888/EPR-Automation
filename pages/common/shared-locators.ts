@@ -1,10 +1,11 @@
 import { Page, Locator , expect} from "@playwright/test";
 import data from '../../data/filterData.json';
+import EPR from '../../data/eprData.json'
+import { count } from "console";
 export default class SharedLocator{
     readonly page: Page;
     readonly EPRColumn: Locator;
     readonly EPRColumnAcc: Locator;
-    readonly getRowByRequestNumber: (requestNumber: string) => Locator;
     readonly EPRColumn2: Locator;
     readonly NoDataMessage: Locator;
     readonly CategoryInputField: Locator;
@@ -52,11 +53,11 @@ export default class SharedLocator{
 
     constructor(page: Page){
         this.page = page;
-        this.EPRColumn = page.locator("//tbody/tr[1]/td[1]");
-        this.EPRColumnAcc = page.locator("//tbody/tr[1]/td[2]");
+        this.EPRColumn = page.locator("//tbody/tr/td[1]");
+        this.EPRColumnAcc = page.locator("//tbody/tr[1]/td[1]");
         this.EPRColumn2 = page.locator("//tbody//tr[2]/td[1]");
 
-        this.NoDataMessage = page.getByText('No results found.')
+        this.NoDataMessage = page.getByText('No results found. Please try a different keyword.')
 
         this.CategoryInputField = page.locator('input[name="category"]')
         this.CategoryInputArrow = page.locator("button[id$=':r3:']")
@@ -91,7 +92,7 @@ export default class SharedLocator{
 
         this.DoneTab = page.getByRole('button', { name: 'Done' });
         this.Status = page.locator("//tbody/tr[1]/td[11]")
-        this.AccStatus = page.locator("//tbody/tr[1]/td[13]")
+        this.AccStatus = page.locator("//tbody/tr[1]/td[12]")
         this.ApprovalsDashboard = page.getByText('Approvals')
         this.SelectMultiple = page.getByRole('button', { name: 'Select Multiple' })
 
@@ -199,8 +200,8 @@ export default class SharedLocator{
         let noMessage = await this.NoDataMessage.innerText();  
         await expect(noMessage).toBe(data.NoDataMessage);
     }
-    async ValidateEPRafterApproveonOngoingtable(requestNumber: string){
-        await this.SearchField.fill(requestNumber);
+    async ValidateEPRafterApproveonOngoingtable(){
+        await this.SearchField.fill(EPR.latestEPR);
         let noMessage = await this.NoDataMessage.innerText();  
         await expect(noMessage).toBe(data.NoDataMessage);
     }
@@ -335,6 +336,7 @@ export default class SharedLocator{
     async ClickLogout(){
         await this.Logout.click();
         await this.YesLogout.click();
+        await this.page.locator('text=Email Address').waitFor({ state: 'visible', timeout: 100000 });
     }
     async ClickLogoutL1(){
         await this.L1Logout.click();
@@ -354,57 +356,102 @@ export default class SharedLocator{
         await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
     }
 
-    async UseSearch(requestNumber: string) {
-        // Fill search field
-        await this.SearchField.fill(requestNumber);
-        await this.SearchField.press('Enter'); // trigger search
+    async UseSearch(maxRetries: number = 5) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            console.log(`Search attempt ${attempt} for EPR ${EPR.latestEPR}`);
 
-        // Wait until the first EPR cell contains the expected request number
-        await expect(this.EPRColumn.first(), {
-            timeout: 50000
-        }).toHaveText(requestNumber);
+            // Fill search field and trigger search
+            await this.SearchField.fill(EPR.latestEPR);
+            await this.SearchField.press('Enter');
 
-        // Optionally, get the text after waiting
-        const eprNo = await this.EPRColumn.first().innerText();
-        console.log(`EPR found: ${eprNo}`);
+            try {
+                // Wait until any row contains the expected EPR text
+                await this.page.waitForFunction(
+                    (epr) => {
+                        const cells = Array.from(document.querySelectorAll('tbody tr td:first-child'));
+                        return cells.some(cell => cell.textContent?.trim() === epr);
+                    },
+                    EPR.latestEPR,
+                    { timeout: 60000 }
+                );
+
+                // Once found, confirm and log which row
+                const count = await this.EPRColumn.count();
+                for (let i = 0; i < count; i++) {
+                    const eprText = (await this.EPRColumn.nth(i).innerText()).trim();
+                    if (eprText === EPR.latestEPR) {
+                        console.log(`EPR ${EPR.latestEPR} found at row ${i + 1}`);
+                        await expect(this.EPRColumn.nth(i)).toHaveText(EPR.latestEPR, { timeout: 5000 });
+                        return; // stop once found
+                    }
+                }
+            } catch {
+                console.log(`EPR ${EPR.latestEPR} not visible yet, retrying...`);
+                await this.page.reload({ waitUntil: 'load' });
+            }
+        }
+
+        throw new Error(`EPR ${EPR.latestEPR} not found after ${maxRetries} attempts`);
     }
-    async UseSearchAccounting(requestNumber: string) {
-        await this.SearchField.fill(requestNumber);
+
+
+
+    async UseSearchAccounting() {
+        await this.SearchField.waitFor({state:'visible', timeout:50000})
+        await this.SearchField.fill(EPR.latestEPR);
         await this.SearchField.press('Enter'); // trigger search
         // Wait until the first EPR cell contains the expected request number
         const eprColumnAccValue = await this.EPRColumnAcc.textContent();
-        if (eprColumnAccValue !== requestNumber) {
-        await this.SearchField.fill(requestNumber);
+        if (eprColumnAccValue !== EPR.latestEPR) {
+        await this.SearchField.fill(EPR.latestEPR);
         await this.SearchField.press('Enter');
         } else {
         await expect(this.EPRColumnAcc.first(), {
             timeout: 50000
-        }).toHaveText(requestNumber);
+        }).toHaveText(EPR.latestEPR);
         }
         // Optionally, get the text after waiting
         const eprNo = await this.EPRColumnAcc.innerText();
         console.log(`EPR found: ${eprNo}`);
     }
 
-    async ValidateUseSearchforNoData(requestNumber: string) {
-        await this.SearchField.fill(requestNumber);
-        await this.SearchField.press('Enter'); // trigger search
-        await this.SearchField.fill(requestNumber);
-        await this.SearchField.press('Enter'); // trigger search
+    async ValidateUseSearchforNoData() {
+        // Initial search
+        await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
+        await this.SearchField.fill(EPR.latestEPR);
+        await this.SearchField.press('Enter');
+
+        // Wait briefly for results to load
+        await this.page.waitForTimeout(2000);
+
+        // Check if EPR column has visible rows
+        const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
+
+        if (eprVisible) {
+            console.log(`EPR column visible. Reloading page and re-searching...`);
+            await this.page.reload({ waitUntil: 'load' });
+            await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
+            await this.SearchField.fill(EPR.latestEPR);
+            await this.SearchField.press('Enter');
+        }
+
+        // Check if No Data message appears
         const noDataVisible = await this.NoDataMessage.isVisible().catch(() => false);
 
-    if (!noDataVisible) {
-        await this.page.reload({ waitUntil: 'load' });
+        if (!noDataVisible) {
+            console.log(`No Data message not visible, retrying once...`);
+            await this.page.reload({ waitUntil: 'load' });
+            await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
+            await this.SearchField.fill(EPR.latestEPR);
+            await this.SearchField.press('Enter');
+        }
 
-        // Wait for the search field to be visible after reload
-        await this.SearchField.waitFor({ state: 'visible', timeout: 5000 });
+        // Final assertion
+        await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 10000 });
 
-        await this.SearchField.fill(requestNumber);
-        await this.SearchField.press('Enter');
+        console.log(`✅ No Data message validated successfully.`);
     }
 
-    // Always assert the No Data message at the end
-    await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 5000 });
-}
+
 
 }
