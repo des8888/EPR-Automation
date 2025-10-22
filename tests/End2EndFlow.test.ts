@@ -232,6 +232,31 @@ await shared.ClickLogout();
       const shared = new SharedLocator(page);
       const loginFlow = new Login(page);
 
+    await test.step('Validate Total amount after Deletion', async()=>{
+        const requestPage = new RequestPage(page);
+        const eprFormFields = new EprFields(page);
+
+        // Navigate to landing page (session will persist from user-data-dir)
+        await page.goto(reqLandingPage);
+
+        // Perform actions
+        await requestPage.ClickNewRequest();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.InputOnFields(page);
+        for (let i = 1; i <= 3; i++) {
+        await eprFormFields.AddTransBtn().click();
+        await eprFormFields.InputFieldsonTransactions2(page);
+        await eprFormFields.FillNetAmtBelow100k();
+        await eprFormFields.ClickAddNewTransactions();
+        }
+        await eprFormFields.CountTotalAmount();
+        await eprFormFields.ClickAddTransActionCol();
+        await eprFormFields.ClickDelete();
+        await eprFormFields.ClickConfirmDelete();
+        await eprFormFields.CountTotalAmount();
+        console.log("Validate Total amount after Deletion ✅ PASSED")
+      })
+
       await test.step("Create a Request", async () => {
         await page.goto(reqLandingPage);
         await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });

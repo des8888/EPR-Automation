@@ -144,7 +144,7 @@ export default class EPRFields{
         this.EWT = page.locator("input[value='false'][name='ewt']")
         this.sidepanelAddTrans = page.getByRole('button', { name: 'Add Transaction' })
         this.AmountCol = page.locator('//tbody/tr/td[8]')
-        this.TotalAmount = page.locator('.MuiTypography-root.MuiTypography-h6.css-1kwadbg')
+        this.TotalAmount = page.locator(`//div[@class='MuiTypography-root MuiTypography-h6 css-r3iov6']`)
         //Actions column on trans table
         //this.ActionsCol = page.locator("//tbody/td[9]");
         this.ActionsCol = page.getByRole('row').getByRole('button')
@@ -231,26 +231,26 @@ export default class EPRFields{
         await this.FileAttach.setInputFiles('files/file_1.txt');
     }
 
-    async InputFieldsonTransactions(page){
-        await this.SubCat3.waitFor({state:'visible'});
-        await this.SubCat3.fill(dets.SubCat3);
-        const randomNum2 = Math.floor(Math.random() * 9) + 1;
-        await this.Description.fill(dets.Description);
-        await this.Location.fill(dets.Location);
-        await this.LocationData.click()
-        await this.Product.fill(dets.Product);
-        await this.ProductData.click()
-        await this.Project.fill(dets.Project);
-        await this.ProjectData.click()
-        await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
-        await this.ChargeCostCenterData.click();
-        await this.CapexOpexCogs.fill(dets.Capex);
-        await this.CapexOpexCogsData.click();
-        const hunderdToMillion = Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000
-        await this.NetAmnt.fill(`${hunderdToMillion}`);
-        await this.Vatable.click();
+    // async InputFieldsonTransactions(page){
+    //     await this.SubCat3.waitFor({state:'visible'});
+    //     await this.SubCat3.fill(dets.SubCat3);
+    //     const randomNum2 = Math.floor(Math.random() * 9) + 1;
+    //     await this.Description.fill(dets.Description);
+    //     await this.Location.fill(dets.Location);
+    //     await this.LocationData.click()
+    //     await this.Product.fill(dets.Product);
+    //     await this.ProductData.click()
+    //     await this.Project.fill(dets.Project);
+    //     await this.ProjectData.click()
+    //     await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
+    //     await this.ChargeCostCenterData.click();
+    //     await this.CapexOpexCogs.fill(dets.Capex);
+    //     await this.CapexOpexCogsData.click();
+    //     const hunderdToMillion = Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000
+    //     await this.NetAmnt.fill(`${hunderdToMillion}`);
+    //     await this.Vatable.click();
        
-    }
+    // }
     async InputFieldsonTransactions2(page){
         await this.SubCat3.waitFor({state:'visible'});
         await this.SubCat3.click()
@@ -267,7 +267,7 @@ export default class EPRFields{
         await this.ChargeCostCenterData.click();
         await this.CapexOpexCogs.fill(dets.Capex);
         await this.CapexOpexCogsData.click();
-    
+        
         await this.Vatable.click();
        
     }
@@ -307,6 +307,16 @@ export default class EPRFields{
     }
 
     //FOR TEST
+    async ClickAddTransActionCol() {
+        // Find the row with your EPR number
+        const Accrow = this.page.getByRole('table').getByRole('button').first()
+        await Accrow.waitFor({ state: 'visible', timeout: 60000 });
+
+        // Then get the button inside that row
+        await Accrow.click();
+
+        console.log(`Clicked Action button for EPR: ${EPR.latestEPR}`);
+    }
     async ClickActionCol() {
         // Find the row with your EPR number
         const row = this.page.getByRole('row', { name: EPR.latestEPR });
@@ -350,27 +360,31 @@ export default class EPRFields{
     async ClickConfirmDelete(){
         await this.ConfirmDelete.click();
     }
-    async CountTotalAmount(){
+    async CountTotalAmount() {
         let total = 0;
         await this.AmountCol.first().scrollIntoViewIfNeeded();
-        let count = await this.AmountCol.count();
-        console.log(`ETOOOOOOOOOOOOOOO: ${count}`)
-        for(let i=0;i<count;i++){
-            let text = await this.AmountCol.nth(i)
-            let amt = await text.innerText();
-            let value = amt.split(" ")[1];
-            let numericValue = parseFloat(value.replace(/,/g, ""));  //parsefloat converts string to number and /,/g remove commas
+        const count = await this.AmountCol.count();
+        console.log(`ETOOOOOOOOOOOOOOO: ${count}`);
 
+        for (let i = 0; i < count; i++) {
+            const text = await this.AmountCol.nth(i).innerText();
+            // Clean any extra spaces and symbols like ₱ or $
+            const value = text.replace(/[^\d.,-]/g, ""); // keep only numbers, comma, dot, minus
+            const numericValue = parseFloat(value.replace(/,/g, ""));
             total += numericValue;
-            console.log(`TOTAAAAAAAAAAAAAAL: ${total}`)
-
+            console.log(`Running total: ${total}`);
         }
-        let totalOverall = await this.TotalAmount.innerText();
-        let trimTotalOverall = totalOverall.split(" ")[1]
-        let TOTAL = parseFloat(trimTotalOverall.replace(/,/g, ""));
-        console.log(`TOTAL OVERAAAAAAAAAAAAAAL: ${totalOverall}`)
+
+        const totalOverallText = await this.TotalAmount.innerText();
+        console.log(`TOTAL OVERALL RAW TEXT: "${totalOverallText}"`);
+
+        // Clean it up the same way
+        const overallValue = totalOverallText.replace(/[^\d.,-]/g, "");
+        const TOTAL = parseFloat(overallValue.replace(/,/g, ""));
+        console.log(`TOTAL comparison → computed: ${total}, displayed: ${TOTAL}`);
         await expect(TOTAL).toBe(total);
     }
+
 
 
 }
