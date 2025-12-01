@@ -1,4 +1,4 @@
-import { Page, Locator , expect} from "@playwright/test";
+import { Page, Locator , expect, selectors} from "@playwright/test";
 import data from '../../data/filterData.json';
 import EPR from '../../data/eprData.json'
 import { count } from "console";
@@ -46,6 +46,10 @@ export default class SharedLocator{
     readonly AccStatus: Locator;
     readonly ApprovalsDashboard: Locator;
     readonly SelectMultiple: Locator;
+    //Accounting Dashboard
+    readonly AccountingDashboard: Locator;
+
+
     //Actions column
 
     //TOASTNOTIFICATION
@@ -94,6 +98,7 @@ export default class SharedLocator{
         this.Status = page.locator("//tbody/tr[1]/td[11]")
         this.AccStatus = page.locator("//tbody/tr[1]/td[12]")
         this.ApprovalsDashboard = page.getByText('Approvals')
+        this.AccountingDashboard = page.getByText('Accounting')
         this.SelectMultiple = page.getByRole('button', { name: 'Select Multiple' })
 
         //TOASTNOTIFICATION
@@ -200,11 +205,7 @@ export default class SharedLocator{
         let noMessage = await this.NoDataMessage.innerText();  
         await expect(noMessage).toBe(data.NoDataMessage);
     }
-    async ValidateEPRafterApproveonOngoingtable(){
-        await this.SearchField.fill(EPR.latestEPR);
-        let noMessage = await this.NoDataMessage.innerText();  
-        await expect(noMessage).toBe(data.NoDataMessage);
-    }
+
     async ValidateDateFilter() {
             
             // Convert filter dates from data
@@ -352,16 +353,23 @@ export default class SharedLocator{
         await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
     }
 
+    async clickAccounting(){
+        await this.AccountingDashboard.click();
+        await this.DoneTab.waitFor({state:'visible', timeout: 5000})
+    }
+
     async WaitForSelectMultipleBtn(){
         await this.SelectMultiple.waitFor({state:'visible', timeout:1000});
     }
 
-    async UseSearch(maxRetries: number = 5) {
+    async UseSearch(latestEPR: string, maxRetries: number = 5) {
+        
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            console.log(`Search attempt ${attempt} for EPR ${EPR.latestEPR}`);
+            console.log(`Search attempt ${attempt} for EPR ${latestEPR}`);
 
             // Fill search field and trigger search
-            await this.SearchField.fill(EPR.latestEPR);
+            await this.EPRColumn.first().waitFor({state:'visible', timeout:5000})
+            await this.SearchField.fill(latestEPR);
             await this.SearchField.press('Enter');
 
             try {
@@ -371,7 +379,7 @@ export default class SharedLocator{
                         const cells = Array.from(document.querySelectorAll('tbody tr td:first-child'));
                         return cells.some(cell => cell.textContent?.trim() === epr);
                     },
-                    EPR.latestEPR,
+                    latestEPR,
                     { timeout: 60000 }
                 );
 
@@ -379,19 +387,19 @@ export default class SharedLocator{
                 const count = await this.EPRColumn.count();
                 for (let i = 0; i < count; i++) {
                     const eprText = (await this.EPRColumn.nth(i).innerText()).trim();
-                    if (eprText === EPR.latestEPR) {
-                        console.log(`EPR ${EPR.latestEPR} found at row ${i + 1}`);
-                        await expect(this.EPRColumn.nth(i)).toHaveText(EPR.latestEPR, { timeout: 5000 });
+                    if (eprText === latestEPR) {
+                        console.log(`EPR ${latestEPR} found at row ${i + 1}`);
+                        await expect(this.EPRColumn.nth(i)).toHaveText(latestEPR, { timeout: 5000 });
                         return; // stop once found
                     }
                 }
             } catch {
-                console.log(`EPR ${EPR.latestEPR} not visible yet, retrying...`);
+                console.log(`EPR ${latestEPR} not visible yet, retrying...`);
                 await this.page.reload({ waitUntil: 'load' });
             }
         }
 
-        throw new Error(`EPR ${EPR.latestEPR} not found after ${maxRetries} attempts`);
+        throw new Error(`EPR ${latestEPR} not found after ${maxRetries} attempts`);
     }
 
 
@@ -415,42 +423,60 @@ export default class SharedLocator{
         console.log(`EPR found: ${eprNo}`);
     }
 
-    async ValidateUseSearchforNoData() {
+async ValidateUseSearchforNoData(latestEPR: string, maxRetries: number = 5) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log(`Attempt ${attempt} to validate No Data message.`);
+
         // Initial search
         await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
-        await this.SearchField.fill(EPR.latestEPR);
+        await this.SearchField.fill(latestEPR);
         await this.SearchField.press('Enter');
 
         // Wait briefly for results to load
-        await this.page.waitForTimeout(2000);
+        await this.page.waitForTimeout(5000);
 
-        // Check if EPR column has visible rows
-        const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
+        try {
+            // Check if EPR column has visible rows
+            const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
 
-        if (eprVisible) {
-            console.log(`EPR column visible. Reloading page and re-searching...`);
-            await this.page.reload({ waitUntil: 'load' });
-            await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
-            await this.SearchField.fill(EPR.latestEPR);
-            await this.SearchField.press('Enter');
+            if (eprVisible) {
+                console.log(`EPR column visible. Reloading page and re-searching...`);
+                if (!this.page.isClosed()) {
+                    await this.page.reload({ waitUntil: 'load' });
+                }
+                await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
+                await this.SearchField.fill(latestEPR);
+                await this.SearchField.press('Enter');
+                await this.page.waitForTimeout(2000);
+            }
+
+            // Check if No Data message appears
+            const noDataVisible = await this.NoDataMessage.isVisible().catch(() => false);
+
+            if (noDataVisible) {
+                // Success! Exit the loop
+                await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 10000 });
+                console.log(`✅ No Data message validated successfully.`);
+                return;
+            } else {
+                console.log(`No Data message not visible yet.`);
+            }
+        } catch (err) {
+            console.log(`Error during attempt ${attempt}: ${err}`);
         }
 
-        // Check if No Data message appears
-        const noDataVisible = await this.NoDataMessage.isVisible().catch(() => false);
-
-        if (!noDataVisible) {
-            console.log(`No Data message not visible, retrying once...`);
-            await this.page.reload({ waitUntil: 'load' });
-            await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
-            await this.SearchField.fill(EPR.latestEPR);
-            await this.SearchField.press('Enter');
+        // Retry delay (optional)
+        if (attempt < maxRetries) {
+            console.log(`Retrying... (${attempt + 1}/${maxRetries})`);
+            await this.page.waitForTimeout(1000); // optional pause before retry
         }
-
-        // Final assertion
-        await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 10000 });
-
-        console.log(`✅ No Data message validated successfully.`);
     }
+
+    // If we reach here, all retries failed
+    throw new Error(`"No Data" message did NOT appear after ${maxRetries} attempts for EPR ${latestEPR}`);
+}
+
+
 
 
 

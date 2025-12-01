@@ -1,0 +1,27 @@
+{
+"USER":"testuser+requestor1@seaoil.com.ph",
+"PW":"requestor1P@ssw0rd",
+
+"ASST": "testuser+assistant@seaoil.com.ph",
+"ASSTPW": "assistantP@ssw0rd",
+"SUPERVISOR":"testuser+supervisor@seaoil.com.ph",
+"SUPERVISORPW": "supervisorP@ssw0rd",
+"ASSTMNGR": "testuser+asst_mgr@seaoil.com.ph",
+"ASSTMNGRPW": "ass_mgrP@ssw0rd",
+"MNGR": "testuser+mgr@seaoil.com.ph",
+"MNGRPW": "mgrP@ssw0rd",
+"SRMNGR": "testuser+sr_mgr@seaoil.com.ph",
+"SRMNGRPW": "sr_mgrP@ssw0rd",
+"AVP": "testuser+avp@seaoil.com.ph",
+"AVPPW": "avpP@ssw0rd",
+"VP": "testuser+vp@seaoil.com.ph",
+"VPPW": "vpP@ssw0rd",
+"SVP": "testuser+svp@seaoil.com.ph",
+"SVPPW": "svpP@ssw0rd",
+
+"AP": "testuser+processor1@seaoil.com.ph",
+"APPW": "processor1P@ssw0rd",
+
+"GOOGLEUSER": "desiree_balderama@seaoil.com.ph",
+"GPASS": "Helloa__8"
+}

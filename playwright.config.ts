@@ -2,19 +2,20 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: false,   // safer for tests with login/logout
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 0,             // no automatic retries
-  workers: 1,             // optional: run one test at a time
+  retries: 0,
+  workers: 1,
 
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
   timeout: 300000,
 
   use: {
     actionTimeout: 300000,
-    trace: 'retain-on-failure',
+    trace: 'on',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on',
+
   },
 
   expect: {

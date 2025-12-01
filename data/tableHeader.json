@@ -9,8 +9,7 @@
         "Assigned AP",
         "Currency",
         "Amount",
-        "Status",
-        "Actions"
+        "Status"
     ],
     "Summary Headers":[
         "EPR No.",
@@ -37,6 +36,7 @@
         "Assigned AP",
         "Currency",
         "Amount",
+        "Status",
         "Actions"
     ],
     "Done Headers":[
@@ -66,10 +66,10 @@
             "Currency",
             "Amount",
             "Status",
+            "Uploaded to NetSuite",
             "Actions"
         ],
         "Done Headers":[
-            " ",
             "EPR No.",
             "Payee Name",
             "Category",
@@ -81,8 +81,7 @@
             "Assigned AP",
             "Currency",
             "Amount",
-            "Status",
-            "Uploaded to NetSuite (UI only)"
+            "Status"
         ]
     }
 }

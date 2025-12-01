@@ -17,6 +17,7 @@ export default class EPRFields{
     readonly Category: Locator;
     readonly CategoryList: Locator;
     readonly CategoryListData: Locator;
+    readonly SubCat: Locator;
     readonly SubCategory: Locator;
     readonly SubCategoryList: Locator;
     readonly SubCategoryListData: Locator;
@@ -91,6 +92,8 @@ export default class EPRFields{
 
         this.Category = page.getByRole('textbox', { name: 'Select a Category' })
         this.CategoryList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t")
+
+        this.SubCat = page.getByRole('textbox', {name: 'Select a Sub Category'})
 
         const randomNum2 = Math.floor(Math.random() * 9) + 1;
         this.CategoryListData = page.getByRole('button').nth(randomNum2)
@@ -189,9 +192,12 @@ export default class EPRFields{
         await this.BillingFromDate.click()
         console.log("SUCESS Input Billing From")
         await this.BillingTo.click()
+        
         await this.BillingToDate.click()
+        console.log("SUCESS Input Billing To")
         await this.DueDate.click()
         await this.DueSelectDate.first().click()
+        console.log("SUCESS Input Due date")
         await this.ModeofPayment.click();
         await this.MoPList.waitFor({state:'visible'})
         const randomNum = Math.floor(Math.random() * 10) + 1;
@@ -223,12 +229,14 @@ export default class EPRFields{
         console.log("Options in dropdown:", options2);
         let randomNum4 = Math.floor(Math.random() * count2);
         await this.SubCategory2ListData.nth(randomNum4).click();
+        console.log("SUCESS SUB CAT 2")
         // const element =await this.SubCategory2ListData.innerHTML()
         // // console.log(`ELEMENT ${element}`)
         await this.RefNo.fill(dets.ReferenceNo);
         await this.Particulars.fill(dets.Particulars);
 
         await this.FileAttach.setInputFiles('files/file_1.txt');
+        console.log("SUCESS FILE ATTACH")
     }
 
     // async InputFieldsonTransactions(page){
@@ -251,11 +259,18 @@ export default class EPRFields{
     //     await this.Vatable.click();
        
     // }
+    getCategoryDropdown() {
+    return this.Category;
+    }
+    getSubCategoryDropdown() {
+    return this.SubCat;
+    }
     async InputFieldsonTransactions2(page){
         await this.SubCat3.waitFor({state:'visible'});
         await this.SubCat3.click()
         await this.SubCat3Data.waitFor({state:'visible'})
         await this.SubCat3Data.click()
+        console.log("SUCESS SUB CAT 3")
         await this.Description.fill(dets.Description);
         await this.Location.fill(dets.Location);
         await this.LocationData.click()
@@ -269,7 +284,6 @@ export default class EPRFields{
         await this.CapexOpexCogsData.click();
         
         await this.Vatable.click();
-       
     }
 
     async FillNetAmtBelow100k(){
@@ -307,7 +321,7 @@ export default class EPRFields{
     }
 
     //FOR TEST
-    async ClickAddTransActionCol() {
+    async ClickAddTransActionCol(latestEPR:string) {
         // Find the row with your EPR number
         const Accrow = this.page.getByRole('table').getByRole('button').first()
         await Accrow.waitFor({ state: 'visible', timeout: 60000 });
@@ -315,24 +329,30 @@ export default class EPRFields{
         // Then get the button inside that row
         await Accrow.click();
 
-        console.log(`Clicked Action button for EPR: ${EPR.latestEPR}`);
+        console.log(`Clicked Action button for EPR: ${latestEPR}`);
     }
-    async ClickActionCol() {
+    async ClickActionCol(latestEPR:string) {
         // Find the row with your EPR number
-        const row = this.page.getByRole('row', { name: EPR.latestEPR });
+        const row = this.page.getByRole('row', { name: latestEPR });
         await row.waitFor({ state: 'visible', timeout: 60000 });
 
         // Then get the button inside that row
         const actionButton = row.getByRole('button');
         await actionButton.click();
 
-        console.log(`Clicked Action button for EPR: ${EPR.latestEPR}`);
+        console.log(`Clicked Action button for EPR: ${latestEPR}`);
     }
 
-    async ClickActionsColAccounting(){
-        await this.AccActionsCol.first().click();
-    }
+    async ClickActionsColAccounting(latestEPR:string){
+        const row = this.page.getByRole('row',{name: latestEPR});
+        await row.waitFor({state:'visible', timeout:6000})
 
+
+        const actionButton = row.getByRole('button');
+        await actionButton.click();
+
+        console.log(`Clicked Action button Accounting for EPR: ${latestEPR}`);
+    }
     async ApproveARequest(){
         await this.ActionApprove.click()
         await this.ApproveReq.click();
