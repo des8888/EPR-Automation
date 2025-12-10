@@ -1,53 +1,121 @@
-import { test, expect, chromium } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import RequestPage from '../pages/Request';
-import eprFields from '../pages/EPRformFields'
+import eprFields from '../pages/EPRformFields';
 import url from '../data/pageUrl.json';
-import { waitForDebugger } from 'inspector';
 import SharedLocator from '../pages/common/shared-locators';
 import Login from '../pages/loginPage';
+import login from '../data/login.json';
 
 const reqLandingPage = url.users.requestor.requestLandingPage;
+
+//
+// ─── GLOBAL HOOKS ─────────────────────────────────────────────────────────────
+//
+
+test.beforeAll(async ({}, testInfo) => {
+  const time = new Date().toString();
+  testInfo.annotations.push({
+    type: 'Test Suite Execution Started At',
+    description: time,
+  });
+});
+
+test.afterAll(async ({}, testInfo) => {
+  const time = new Date().toString();
+  testInfo.annotations.push({
+    type: 'Test Suite Execution Finished At',
+    description: time,
+  });
+});
+
+//
+// ─── REQUESTOR FLOW SUITE ─────────────────────────────────────────────────────
+//
+
 test.describe('Requestor Flow', () => {
-  test.beforeEach(async ({ page }) => {
-    const loginFlow = new Login(page);
-    await loginFlow.login(
-      process.env.ASSTMNGR!,
-      process.env.ASSTMNGRPW!,
-      './auth/ASST.json',
-      reqLandingPage
-    );
+  
+  test.beforeEach(async ({ page }, testInfo) => {
+    const time = new Date().toString();
+    testInfo.annotations.push({
+      type: 'Test Case Execution Started At',
+      description: time,
+    });
   });
 
-test("Create New Request", async ({ page }) => {
-    let requestNumber: string;
+  test.afterEach(async ({ page }, testInfo) => {
+    const time = new Date().toString();
+
+    if (testInfo.status === testInfo.expectedStatus) {
+      testInfo.annotations.push({
+        type: 'Test Execution Status',
+        description: 'Passed',
+      });
+    } else {
+      testInfo.annotations.push(
+        { type: 'Test Case Title', description: testInfo.title },
+        { type: 'Test Case Status', description: testInfo.status },
+      );
+    }
+
+    testInfo.annotations.push({
+      type: 'Test Case Execution Finished At',
+      description: time,
+    });
+  });
+
+  //
+  // ─── TEST CASE: CREATE NEW REQUEST ───────────────────────────────────────────
+  //
+
+  test.only('Create New Request', async ({ page }) => {
+    let latestEPR = '';
+
     const requestPage = new RequestPage(page);
-    const eprFormFields = new eprFields(page);
+    const eprForm = new eprFields(page);
     const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
 
-    // Navigate to landing page (session will persist from user-data-dir)
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+    await page.waitForLoadState('domcontentloaded');
+
+    // Navigate to Request Landing Page
     await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
 
-    // Perform actions
-      await requestPage.ClickNewRequest();
-      await eprFormFields.AddTransBtn().waitFor();
-      await eprFormFields.InputOnFields(page);
-      await eprFormFields.AddTransBtn().click();
-      await eprFormFields.InputFieldsonTransactions2(page);
-      await eprFormFields.FillNetAmtupTo1M()
-      await eprFormFields.ClickAddNewTransactions();
-      console.log("ADDED TRANSACTION")
-      await eprFormFields.ClickNext();
-      await eprFormFields.ClickSubmitRequest();
-      await eprFormFields.ClickSubmit();
-      console.log("SUBMITTING REQUEST....")
-      await requestPage.waitForViewofViewAllReq();
-      await page.waitForTimeout(5000);
-      requestNumber = await eprFormFields.GetNewEPRNo();
-      await requestPage.ClickViewAllReq()
-      await shared.UseSearch();
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
 
-    console.log(`✅ Request creation ✅ PASSED`);
+    await requestPage.ClickNewRequest();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFields(page);
+    await eprForm.AddTransBtn().click();
+
+    await eprForm.InputFieldsonTransactions2(page);
+    await eprForm.FillNetAmtupTo1M();
+
+    await eprForm.ClickAddNewTransactions();
+    await eprForm.ClickNext();
+    await eprForm.ClickSubmitRequest();
+    await eprForm.ClickSubmit();
+
+    // Wait for confirmation page
+    await requestPage.waitForViewofViewAllReq();
+
+    // Get newly created EPR number
+    latestEPR = await eprForm.GetNewEPRNo();
+
+    // Navigate to View All Requests and search
+    await requestPage.ClickViewAllReq();
+    await shared.UseSearch(latestEPR);
+
+    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
 });
+
 
 
 
@@ -180,5 +248,4 @@ test("Create New Request", async ({ page }) => {
 //     await eprFormFields.CountTotalAmount();
 //     console.log("Validate Total amount after Deletion ✅ PASSED")
 // })
-
 });

@@ -368,6 +368,7 @@ export default class EPRFields{
         await this.ActionReturn.click()
         await this.ReturnField.fill(dets.ReturnMess);
         await this.ReturnReq.click();
+        await this.ReturnReq.waitFor({ state: 'hidden', timeout: 50000 });
     }
     async AcknowledgeARequest(){
         await this.ActionAcknowledge.click()
