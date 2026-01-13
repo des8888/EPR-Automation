@@ -2,6 +2,14 @@
 "USER":"testuser+requestor1@seaoil.com.ph",
 "PW":"requestor1P@ssw0rd",
 
+"APPROVER1": "testuser+approver1@seaoil.com.ph",
+"APPROVER1PW":"approver1P@ssw0rd",
+"APPROVER2":"testuser+approver2@seaoil.com.ph",
+"APPROVER2PW":"approver2P@ssw0rd",
+"APPROVER3":"testuser+approver3@seaoil.com.ph",
+"APPROVER3PW":"approver3P@ssw0rd",
+
+
 "ASST": "testuser+assistant@seaoil.com.ph",
 "ASSTPW": "assistantP@ssw0rd",
 "SUPERVISOR":"testuser+supervisor@seaoil.com.ph",

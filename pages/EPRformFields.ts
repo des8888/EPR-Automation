@@ -5,6 +5,11 @@ import EPR from "../data/eprData.json"
 
 export default class EPRFields{
     readonly page: Page;
+    readonly Company: Locator;
+    readonly CompanySelect: Locator;
+    readonly Payee: Locator;
+    readonly PayeeSearch: Locator;
+    readonly PayeeSelect: Locator;
     readonly BillingFrom: Locator;
     readonly BillingFromDate: Locator;
     readonly BillingTo: Locator;
@@ -17,6 +22,7 @@ export default class EPRFields{
     readonly Category: Locator;
     readonly CategoryList: Locator;
     readonly CategoryListData: Locator;
+    readonly CategoryListData2: Locator;
     readonly SubCat: Locator;
     readonly SubCategory: Locator;
     readonly SubCategoryList: Locator;
@@ -46,7 +52,7 @@ export default class EPRFields{
     readonly Vatable: Locator;
     readonly EWT: Locator;
     readonly sidepanelAddTrans: Locator;
-    readonly sidepanelPage: Locator;
+    readonly sidepanelCloseButton: Locator;
     readonly subCat3Col: Locator;
 
     readonly AmountCol: Locator;
@@ -79,6 +85,11 @@ export default class EPRFields{
 
     constructor (page: Page){
         this.page = page;
+        this.Company = page.getByRole('textbox', { name: 'Select a Company' })
+        this.CompanySelect = page.getByRole('button', { name: `${dets.Company}` })
+        this.Payee = page.getByRole('textbox', { name: 'Select a Payee' });
+        this.PayeeSearch = page.getByRole('textbox', { name: 'Search...' })
+        this.PayeeSelect = page.getByRole('button', { name: `${dets.Payee}` })
         this.BillingFrom = page.getByRole('button', { name: 'Choose date' }).first()
         this.BillingFromDate = page.getByRole('gridcell', { name: `${dets.BillingFrom}` })
         this.BillingTo = page.getByRole('button', { name: 'Choose date' }).nth(1)
@@ -97,6 +108,7 @@ export default class EPRFields{
 
         const randomNum2 = Math.floor(Math.random() * 9) + 1;
         this.CategoryListData = page.getByRole('button').nth(randomNum2)
+        this.CategoryListData2 = page.getByRole('button');
         
         this.SubCategory = page.getByRole('textbox', { name: 'Select Sub Category 1' })
         this.SubCategoryList = page.getByRole('button').filter({hasText: /^[A-Z\s]+$/,});
@@ -156,6 +168,7 @@ export default class EPRFields{
         this.ActionReject = page.getByRole('menuitem', { name: 'Reject' })
         this.ActionReturn = page.getByRole('menuitem', { name: 'Return' })
 
+        this.sidepanelCloseButton = page.getByRole('button').first();
 
         this.ApproveReq = page.getByRole('button', { name: 'Approve' })
         this.RejectReq = page.getByRole('button', { name: 'Reject' })
@@ -187,7 +200,70 @@ export default class EPRFields{
     AddTransBtn() {
         return this.AddTransactionsBtn;
     }
-    async InputOnFields(page){
+    async InputOnFields(){
+        await this.BillingFrom.click();
+        await this.BillingFromDate.click()
+        console.log("SUCESS Input Billing From")
+        await this.BillingTo.click()
+        
+        await this.BillingToDate.click()
+        console.log("SUCESS Input Billing To")
+        await this.DueDate.click()
+        await this.DueSelectDate.first().click()
+        console.log("SUCESS Input Due date")
+        await this.ModeofPayment.click();
+        await this.MoPList.waitFor({state:'visible'})
+        const randomNum = Math.floor(Math.random() * 10) + 1;
+        console.log(randomNum); 
+        await this.MopListData.click();
+        console.log("SUCESS MOP Input")
+
+        await this.Category.click();
+        await this.CategoryList.waitFor({state:'visible'})
+        await this.CategoryListData.click();
+        console.log("SUCESS Input Category")
+
+        await this.SubCategory.click();
+        await this.SubCategoryList.first().waitFor({state:'visible'})
+        let count = await this.SubCategoryList.count();
+        console.log(`ETOOOOOOOOO: ${count}`)
+
+        const options = await this.SubCategoryListData.allTextContents();
+        console.log("Options in dropdown:", options);
+
+
+        const randomNum3 = Math.floor(Math.random() * count);
+        await this.SubCategoryListData.nth(randomNum3).click();
+
+
+        await this.SubCategory2.click();
+        await this.SubCategory2List.first().waitFor({ state: 'visible' });
+        let count2 = await this.SubCategory2List.count();
+        console.log(`ETO2: ${count2}`)
+        const options2 = await this.SubCategory2ListData.allTextContents();
+        console.log("Options in dropdown:", options2);
+        let randomNum4 = Math.floor(Math.random() * count2);
+        await this.SubCategory2ListData.nth(randomNum4).click();
+        console.log("SUCESS SUB CAT 2")
+        // const element =await this.SubCategory2ListData.innerHTML()
+        // // console.log(`ELEMENT ${element}`)
+        await this.RefNo.fill(dets.ReferenceNo);
+        await this.Particulars.fill(dets.Particulars);
+
+        await this.FileAttach.setInputFiles('files/file_1.txt');
+        console.log("SUCESS FILE ATTACH")
+    }
+
+    async InputOnFieldsForRequestor1(page){
+        await this.Company.click();
+        await page.waitForTimeout(3000);
+        await this.CompanySelect.click();
+        await this.Payee.click();
+        await page.waitForTimeout(4000);
+        await this.PayeeSearch.fill('Requestor');
+        await page.waitForTimeout(4000);
+        await this.PayeeSelect.click();
+        
         await this.BillingFrom.click();
         await this.BillingFromDate.click()
         console.log("SUCESS Input Billing From")
@@ -404,6 +480,122 @@ export default class EPRFields{
         const TOTAL = parseFloat(overallValue.replace(/,/g, ""));
         console.log(`TOTAL comparison → computed: ${total}, displayed: ${TOTAL}`);
         await expect(TOTAL).toBe(total);
+    }
+
+    async getSubCat2CountFromDOM(): Promise<number> {
+    return await this.page.evaluate(() => {
+        return document.querySelectorAll('ul.MuiList-root div[role="button"]').length;
+        });
+    }
+
+        
+    async ValidateAllfieldsifPresent() {
+        // ---------- PREVIOUS FIELDS ----------
+        await this.BillingFrom.click();
+        await this.BillingFromDate.click();
+        console.log("SUCCESS Input Billing From");
+
+        await this.BillingTo.click();
+        await this.BillingToDate.click();
+        console.log("SUCCESS Input Billing To");
+
+        await this.DueDate.click();
+        await this.DueSelectDate.first().click();
+        console.log("SUCCESS Input Due date");
+
+        await this.ModeofPayment.click();
+        await this.MoPList.waitFor({ state: 'visible' });
+        await this.MopListData.click();
+        console.log("SUCCESS MOP Input");
+
+        await this.RefNo.fill(dets.ReferenceNo);
+        await this.Particulars.fill(dets.Particulars);
+
+        await this.FileAttach.setInputFiles('files/file_1.txt');
+        console.log("SUCCESS FILE ATTACH");
+
+        // ---------- CATEGORY ----------
+        await this.Category.click();
+        await this.CategoryList.first().waitFor({ state: 'visible' });
+
+        const catCount = await this.CategoryListData2.count();
+        console.log(`CATEGORY COUNT: ${catCount}`);
+
+        // 🔁 CATEGORY LOOP
+        for (let cat = 1; cat < catCount; cat++) { // <-- start at 0
+
+            // Select Category
+            await this.CategoryListData2.nth(cat).click();
+            console.log(`Selected Category ${cat}`);
+
+            // ---------- SUB CATEGORY 1 ----------
+            await this.SubCategory.click();
+            await this.SubCategoryList.first().waitFor({ state: 'visible' });
+
+            const subCat1Count = await this.SubCategoryList.count();
+            console.log(`SUB CAT1 COUNT: ${subCat1Count}`);
+
+            for (let subCat1 = 0; subCat1 < subCat1Count; subCat1++) {
+
+                // 🔑 Re-select SubCat1 before iterating SubCat2
+                await this.SubCategoryListData.nth(subCat1).click();
+                console.log(`Selected SubCat1 ${subCat1}`);
+
+                // ---------- SUB CATEGORY 2 ----------
+                await this.SubCategory2.click();
+                await this.SubCategory2List.first().waitFor({ state: 'visible' });
+                
+                // 🔑 Re-capture SubCat2 count after SubCat1 selection
+                // ✅ DOM-based count
+                const subCat2Count = await this.getSubCat2CountFromDOM();
+                console.log(`SUB CAT2 COUNT (DOM): ${subCat2Count}`);
+
+                if (subCat2Count === 0) {
+                    console.warn('No SubCat2 found, skipping...');
+                    continue;
+                }
+
+                for (let subCat2 = 0; subCat2 < subCat2Count; subCat2++) {
+                    // 🔑 Re-open SubCat2 dropdown every iteration
+                        if (subCat2 > 0) {
+                            await this.SubCategory2.click();
+                            await this.SubCategory2List.first().waitFor({ state: 'visible' });
+                        }
+
+                    // 🔑 Click the nth SubCat2 option
+                    const subCat2Options = this.SubCategory2ListData;
+                    console.log(`SUBCAT2 OPTIONS: ${subCat2Options}`)
+                    const option = subCat2Options.nth(subCat2);
+
+                    await option.waitFor({ state: 'visible' });
+                    await option.click();
+
+                    console.log(
+                        `Processed → Cat=${cat}, SubCat1=${subCat1}, SubCat2=${subCat2}`
+                    );
+
+                    // ----- TRANSACTION -----
+                    await this.AddTransBtn().click();
+                    await this.InputFieldsonTransactions2();
+                    await this.sidepanelCloseButton.click();
+
+                    // 🔑 wait for UI to stabilize
+                    await this.page.waitForTimeout(500);
+                }
+
+                // 🔁 SubCat2 finished → move to next SubCat1
+                if (subCat1 + 1 < subCat1Count) {
+                    await this.SubCategory.click();
+                    await this.SubCategoryList.first().waitFor({ state: 'visible' });
+                }
+            }
+
+            // 🔁 SubCat1 finished → move to next Category
+            if (cat + 1 < catCount) {
+                await this.Category.click();
+                await this.CategoryList.first().waitFor({ state: 'visible' });
+            }
+        }
     }
 
 

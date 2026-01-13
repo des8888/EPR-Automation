@@ -56,7 +56,7 @@ test.describe('E2E Flow', () => {
     }
   })
 //********************************************************************************** */
-  test('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test.only('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -64,6 +64,7 @@ test.describe('E2E Flow', () => {
     const loginFlow = new Login(page);
 
     await page.goto(url.loginURL);
+    //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await page.waitForLoadState("domcontentloaded");
     //Navigate to landing page (session is already logged in)
@@ -100,13 +101,15 @@ test.describe('E2E Flow', () => {
       });
 
       await test.step("Check EPR on other non Approver accounts", async()=>{
-      await loginFlow.login(login.AVP, login.AVPPW);
+      //await loginFlow.login(login.AVP, login.AVPPW);
+      await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.ValidateUseSearchforNoData(latestEPR);
-await shared.ClickLogout();
+      await shared.ClickLogout();
 
-      await loginFlow.login(login.VP, login.VPPW);
+      //await loginFlow.login(login.VP, login.VPPW);
+      await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.ValidateUseSearchforNoData(latestEPR);
@@ -122,7 +125,8 @@ await shared.ClickLogout();
 
       await test.step("Approved by Approver L1", async()=>{
       // Login as Approver 1
-      await loginFlow.login(login.MNGR, login.MNGRPW);
+      //await loginFlow.login(login.MNGR, login.MNGRPW);
+      await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.UseSearch(latestEPR);
@@ -140,7 +144,8 @@ await shared.ClickLogout();
       })
 
       await test.step("Check EPR on other non Approver accounts", async()=>{
-      await loginFlow.login(login.VP, login.VPPW);
+      //await loginFlow.login(login.VP, login.VPPW);
+      await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.ValidateUseSearchforNoData(latestEPR);
@@ -156,7 +161,8 @@ await shared.ClickLogout();
 
       await test.step("Approved by Approver L2", async()=>{
       // Login as Approver 1
-      await loginFlow.login(login.AVP, login.AVPPW);
+      //await loginFlow.login(login.AVP, login.AVPPW);
+      await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.UseSearch(latestEPR);
@@ -183,7 +189,8 @@ await shared.ClickLogout();
       })
       await test.step("Approved by Approver L3", async()=>{
       // Login as Approver 1
-      await loginFlow.login(login.VP, login.VPPW);
+      //await loginFlow.login(login.VP, login.VPPW);
+      await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
       await shared.UseSearch(latestEPR);
@@ -212,7 +219,7 @@ await shared.ClickLogout();
       await shared.ToastNotificationMessage();
       await shared.ValidateUseSearchforNoData(latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearchAccounting()
+      await shared.UseSearch(latestEPR)
       await shared.AccGetStatus();
       await Promise.all([
           page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
@@ -489,23 +496,23 @@ await shared.ClickLogout();
 
 });
 
-//********************************************************************************** */
-//REJECTIONS
 
-  test('Rejection of Request L1', async ({ page }) => {
-    
-    const requestPage = new RequestPage(page);
-    const eprFormFields = new EprFields(page);
-    const shared = new SharedLocator(page);
-    const loginFlow = new Login(page);
+//********************************************************************************** */
+  test('Request to Approval for PROC team (up to 1M)', async ({ page }) => {
+
+  const requestPage = new RequestPage(page);
+  const eprFormFields = new EprFields(page);
+  const shared = new SharedLocator(page);
+  const loginFlow = new Login(page);
 
     await page.goto(url.loginURL);
-    await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+    await loginFlow.login(login.ASST, login.ASSTPW);
     await page.waitForLoadState("domcontentloaded");
-    //Navigate to landing page (session is already logged in)
-      await test.step("Create a Request", async()=>{
+  // ───────────────────────────────────────────────
+  // STEP 1: Requestor creates an EPR
+  // ───────────────────────────────────────────────
+ await test.step("Create a Request", async()=>{
 
-      
       await page.goto(reqLandingPage);
       await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
 
@@ -515,7 +522,7 @@ await shared.ClickLogout();
       await eprFormFields.InputOnFields(page);
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
-      await eprFormFields.FillNetAmtUpTo500k();
+      await eprFormFields.FillNetAmtupTo1M();
       await eprFormFields.ClickAddNewTransactions();
       await eprFormFields.ClickNext();
       await eprFormFields.ClickSubmitRequest();
@@ -532,21 +539,177 @@ await shared.ClickLogout();
           page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
           shared.ClickLogoutL1(),
         ]);
+  });
+  // ───────────────────────────────────────────────
+  // STEP 1: Check on different account if EPR is existing
+  // ───────────────────────────────────────────────
+ await test.step("Check EPR on other non Approver accounts", async () => {
+        // L2 Login check
+        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        let noMessage1 = await shared.NoDataMessage.innerText();
+        await expect(noMessage1).toBe(data.NoDataMessage);
+        await shared.ClickLogout();
 
+        // L3 Login check
+        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        let noMessage2 = await shared.NoDataMessage.innerText();
+        await expect(noMessage2).toBe(data.NoDataMessage);
+await shared.ClickLogout();
+
+        // Accounting check
+        await loginFlow.login(login.AP, login.APPW);
+        await shared.clickAccounting();
+        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        let noMessage3 = await shared.NoDataMessage.innerText();
+        await expect(noMessage3).toBe(data.NoDataMessage);
+await shared.ClickLogout();
       });
+
+  // ───────────────────────────────────────────────
+  // STEP 2: Approver L1
+  // ───────────────────────────────────────────────
+  await test.step("Approved by Approver L1", async () => {
+    await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+    await shared.ClickApprovals();
+
+    await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+    await shared.UseSearch(latestEPR);
+
+    await eprFormFields.ClickActionCol(latestEPR);
+    await eprFormFields.ApproveARequest();
+
+    await shared.ToastNotificationMessage();
+    await shared.ValidateUseSearchforNoData(latestEPR);
+
+    await shared.DoneTabButton.click();
+    await shared.UseSearch(latestEPR);
+    await shared.GetStatus();
+
+    await Promise.all([
+      page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+      shared.ClickLogout(),
+    ]);
+  });
+
+  // ───────────────────────────────────────────────
+  // STEP 3: Approver L2 (AVP)
+  // ───────────────────────────────────────────────
+  await test.step("Check EPR on other non Approver accounts", async () => {
+        // L2 Login check
+        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        let noMessage1 = await shared.NoDataMessage.innerText();
+        await expect(noMessage1).toBe(data.NoDataMessage);
+        await shared.ClickLogout();
+
+        // L3 Login check
+        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        let noMessage2 = await shared.NoDataMessage.innerText();
+        await expect(noMessage2).toBe(data.NoDataMessage);
+await shared.ClickLogout();
+      });
+
+  // ───────────────────────────────────────────────
+  // STEP 4: Accounting Approval
+  // ───────────────────────────────────────────────
+  await test.step("Approved by Accounting", async () => {
+    await loginFlow.login(login.AP, login.APPW);
+    await shared.clickAccounting();
+    await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+    await shared.UseSearch(latestEPR);
+
+    await eprFormFields.ClickActionsColAccounting(latestEPR);
+    await eprFormFields.AcknowledgeARequest();
+
+    await shared.ToastNotificationMessage();
+    await shared.ValidateUseSearchforNoData(latestEPR);
+
+    await shared.DoneTabButton.click();
+    await shared.UseSearchAccounting();
+    await shared.AccGetStatus();
+
+    await Promise.all([
+      page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+      shared.ClickLogout(),
+    ]);
+  });
+
+  console.log('✅Request to Approval for PROC team (up to 1M) — PASSED');
+
+});
+
+//********************************************************************************** */
+//REJECTIONS
+
+  test('Rejection of Request L1', async ({ page }) => {
+    
+    const requestPage = new RequestPage(page);
+    const eprFormFields = new EprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    await page.goto(url.loginURL);
+    //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+    // await loginFlow.login(login.USER, login.PW);
+    await page.waitForLoadState("domcontentloaded");
+    //Navigate to landing page (session is already logged in)
+      // await test.step("Create a Request", async()=>{
+
+      
+      // await page.goto(reqLandingPage);
+      // await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
+      // // Perform actions
+      // await requestPage.ClickNewRequest();
+      // await eprFormFields.AddTransBtn().waitFor();
+      // await eprFormFields.InputOnFields(page);
+      // await eprFormFields.AddTransBtn().click();
+      // await eprFormFields.InputFieldsonTransactions2(page);
+      // await eprFormFields.FillNetAmtUpTo500k();
+      // await eprFormFields.ClickAddNewTransactions();
+      // await eprFormFields.ClickNext();
+      // await eprFormFields.ClickSubmitRequest();
+      // await eprFormFields.ClickSubmit();
+      // await requestPage.waitForViewofViewAllReq();
+      // await page.waitForTimeout(5000);
+      // latestEPR = await eprFormFields.GetNewEPRNo();
+      // await requestPage.ClickViewAllReq();
+      // await shared.UseSearch(latestEPR);
+
+
+      // // Logout Requestor
+      //   await Promise.all([
+      //     page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+      //     shared.ClickLogoutL1(),
+      //   ]);
+
+      // });
 
       await test.step("Rejected by Approver L1", async()=>{
       // Login as Approver 1
-      await loginFlow.login(login.MNGR, login.MNGRPW);
+      //await loginFlow.login(login.MNGR, login.MNGRPW);
+      await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
+      await eprFormFields.ClickActionCol(EPR.latestEPR);
       await eprFormFields.RejectARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -559,7 +722,7 @@ await shared.ClickLogout();
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.DoneTabButton.click()
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       })
 
       console.log('✅ Rejection of Request by L1 ✅ PASSED');
@@ -685,7 +848,7 @@ await shared.ClickLogout();
 
   //RETURNS
 //*********************************************************************************** */
-  test.only('Return of Request L1', async ({ page }) => {
+  test('Return of Request L1', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);

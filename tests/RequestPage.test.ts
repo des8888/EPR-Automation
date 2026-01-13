@@ -67,7 +67,56 @@ test.describe('Requestor Flow', () => {
   // ─── TEST CASE: CREATE NEW REQUEST ───────────────────────────────────────────
   //
 
-  test.only('Create New Request', async ({ page }) => {
+  test('Create New Request', async ({ page }) => {
+    let latestEPR = '';
+
+    const requestPage = new RequestPage(page);
+    const eprForm = new eprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.USER, login.PW);
+    await page.waitForLoadState('domcontentloaded');
+
+    // Navigate to Request Landing Page
+    await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
+
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
+
+    await requestPage.ClickNewRequest();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.AddTransBtn().click();
+
+    await eprForm.InputFieldsonTransactions2(page);
+    await eprForm.FillNetAmtupTo1M();
+
+    await eprForm.ClickAddNewTransactions();
+    await eprForm.ClickNext();
+    await eprForm.ClickSubmitRequest();
+    await eprForm.ClickSubmit();
+
+    // Wait for confirmation page
+    await requestPage.waitForViewofViewAllReq();
+
+    // Get newly created EPR number
+    latestEPR = await eprForm.GetNewEPRNo();
+
+    // Navigate to View All Requests and search
+    await requestPage.ClickViewAllReq();
+    await shared.UseSearch(latestEPR);
+
+    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
+});
+
+  test.only('Check all data fields if there is data', async ({ page }) => {
     let latestEPR = '';
 
     const requestPage = new RequestPage(page);
@@ -92,16 +141,15 @@ test.describe('Requestor Flow', () => {
 
     await eprForm.AddTransBtn().waitFor();
 
-    await eprForm.InputOnFields(page);
-    await eprForm.AddTransBtn().click();
+    await eprForm.ValidateAllfieldsifPresent();
 
     await eprForm.InputFieldsonTransactions2(page);
-    await eprForm.FillNetAmtupTo1M();
+    // await eprForm.FillNetAmtupTo1M();
 
-    await eprForm.ClickAddNewTransactions();
-    await eprForm.ClickNext();
-    await eprForm.ClickSubmitRequest();
-    await eprForm.ClickSubmit();
+    // await eprForm.ClickAddNewTransactions();
+    // await eprForm.ClickNext();
+    // await eprForm.ClickSubmitRequest();
+    // await eprForm.ClickSubmit();
 
     // Wait for confirmation page
     await requestPage.waitForViewofViewAllReq();
@@ -113,10 +161,8 @@ test.describe('Requestor Flow', () => {
     await requestPage.ClickViewAllReq();
     await shared.UseSearch(latestEPR);
 
-    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
+    console.log(`\n✅ Successfully Check all data fields if there is data ${latestEPR}`);
 });
-
-
 
 
 // test("Create New Request 10 times", async ({ page }) => {
@@ -248,4 +294,8 @@ test.describe('Requestor Flow', () => {
 //     await eprFormFields.CountTotalAmount();
 //     console.log("Validate Total amount after Deletion ✅ PASSED")
 // })
+
+
+
+
 });

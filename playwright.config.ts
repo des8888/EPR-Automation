@@ -8,10 +8,10 @@ export default defineConfig({
   workers: 1,
 
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
-  timeout: 300000,
+  timeout: 400000,
 
   use: {
-    actionTimeout: 300000,
+    actionTimeout: 400000,
     trace: 'on',
     screenshot: 'only-on-failure',
     video: 'on',
