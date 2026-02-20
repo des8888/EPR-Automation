@@ -67,7 +67,7 @@ test.describe('Requestor Flow', () => {
   // ─── TEST CASE: CREATE NEW REQUEST ───────────────────────────────────────────
   //
 
-  test('Create New Request', async ({ page }) => {
+  test.only('Create New Request', async ({ page }) => {
     let latestEPR = '';
 
     const requestPage = new RequestPage(page);
@@ -93,6 +93,7 @@ test.describe('Requestor Flow', () => {
     await eprForm.AddTransBtn().waitFor();
 
     await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.MultipleValidFileAttach();
     await eprForm.AddTransBtn().click();
 
     await eprForm.InputFieldsonTransactions2(page);
@@ -116,7 +117,7 @@ test.describe('Requestor Flow', () => {
     console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
 });
 
-  test.only('Check all data fields if there is data', async ({ page }) => {
+  test('Check all data fields if there is data', async ({ page }) => {
     let latestEPR = '';
 
     const requestPage = new RequestPage(page);

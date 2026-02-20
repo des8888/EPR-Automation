@@ -5,7 +5,8 @@
       "requestLandingPage": "https://expense.sandbox.seaoil.com.ph/requests"
     },
     "approver": {
-      "approvalsPage": "https://expense.sandbox.seaoil.com.ph/approvals"
+      "approvalsPage": "https://expense.sandbox.seaoil.com.ph/approvals",
+      "adminPage": "https://expense.sandbox.seaoil.com.ph/admin/approval-delegation"
     },
     "accounting": {
       "accountingPage": "https://expense.sandbox.seaoil.com.ph/accounting"

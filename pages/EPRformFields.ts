@@ -67,7 +67,9 @@ export default class EPRFields{
     readonly ActionAcknowledge: Locator;
     readonly AcknowledgeReq: Locator;
     readonly ApproveReq: Locator;
+    readonly ApproveField: Locator;
     readonly RejectReq: Locator;
+    readonly RejectField: Locator;
     readonly ReturnReq: Locator;
     readonly ReturnField: Locator;
     readonly Edit: Locator;
@@ -171,9 +173,12 @@ export default class EPRFields{
         this.sidepanelCloseButton = page.getByRole('button').first();
 
         this.ApproveReq = page.getByRole('button', { name: 'Approve' })
+        this.ApproveField = page.getByRole('textbox', { name: 'Enter a Note (Optional)' })
         this.RejectReq = page.getByRole('button', { name: 'Reject' })
+        this.RejectField = page.getByRole('textbox', { name: 'Enter Reason (Optional)' })
         this.ReturnReq = page.getByRole('button', { name: 'Return' })
         this.ReturnField = page.getByRole('textbox', { name: 'Indicate missing documents or' })
+        
 
 
         this.ActionAcknowledge = page.getByRole('menuitem', { name: 'Acknowledge' })
@@ -261,6 +266,7 @@ export default class EPRFields{
         await this.Payee.click();
         await page.waitForTimeout(4000);
         await this.PayeeSearch.fill('Requestor');
+        //await this.PayeeSearch.fill('Accountant');
         await page.waitForTimeout(4000);
         await this.PayeeSelect.click();
         
@@ -311,8 +317,6 @@ export default class EPRFields{
         await this.RefNo.fill(dets.ReferenceNo);
         await this.Particulars.fill(dets.Particulars);
 
-        await this.FileAttach.setInputFiles('files/file_1.txt');
-        console.log("SUCESS FILE ATTACH")
     }
 
     // async InputFieldsonTransactions(page){
@@ -372,6 +376,24 @@ export default class EPRFields{
     
     async FillNetAmtupTo1M(){
         await this.NetAmnt.fill(dets.NetAmntUpto1M);;
+    }
+    async FillNetMorethan1M(){
+        await this.NetAmnt.fill(dets.NetAmntMorethan1M);;
+    }
+    async SingleFileAttachment(){
+        await this.FileAttach.setInputFiles('files/sample99mb.zip');
+        console.log("SUCESS FILE ATTACH")
+    }
+    async MultipleValidFileAttach(){
+        await this.FileAttach.setInputFiles(['files/valid files/Document7.docx', 
+            'files/valid files/DSR.xlsx',
+            'files/valid files/expense.jpg',
+            'files/valid files/file_1.txt',
+            'files/valid files/MFA logo - Copy.png',
+            'files/valid files/sample.zip',
+            'files/valid files/SEAOIL.pdf',
+            'files/valid files/TESTING`~!@#$%^&()_+{}`.docx' ]);
+            console.log("SUCESS FILE ATTACH")
     }
     
     async ClickAddNewTransactions(){
@@ -435,9 +457,23 @@ export default class EPRFields{
         await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
     }
 
+    async ApproveARequestwithNote(){
+        await this.ActionApprove.click()
+        await this.ApproveField.fill(dets.ApproveMess);
+        await this.ApproveReq.click();
+        await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
+    }
+    
     async RejectARequest(){
         await this.ActionReject.click()
         await this.RejectReq.click();
+    }
+
+    async RejectARequestwithNote(){
+        await this.ActionReject.click()
+        await this.RejectField.fill(dets.RejectMess);
+        await this.RejectReq.click();
+        await this.RejectReq.waitFor({ state: 'hidden', timeout: 50000 });
     }
 
     async ReturnARequest(){
@@ -482,11 +518,21 @@ export default class EPRFields{
         await expect(TOTAL).toBe(total);
     }
 
-    async getSubCat2CountFromDOM(): Promise<number> {
+    async getSubCat2CountFromDOM(): Promise<number []> {
     return await this.page.evaluate(() => {
-        return document.querySelectorAll('ul.MuiList-root div[role="button"]').length;
+        const count = document.querySelectorAll('ul.MuiList-root div[role="button"]').length;
+        return Array.from({ length: count }, (_, i) => i);
         });
     }
+
+    async getSubCat2ArrayFromDOM(): Promise<string[]> {
+        return await this.page.evaluate(() => {
+            const nodes = Array.from(document.querySelectorAll('ul.MuiList-root div[role="button"]'));
+            return nodes.map(el => el.textContent?.trim() || '');
+        });
+    }
+
+
 
         
     async ValidateAllfieldsifPresent() {
@@ -522,9 +568,8 @@ export default class EPRFields{
         console.log(`CATEGORY COUNT: ${catCount}`);
 
         // 🔁 CATEGORY LOOP
-        for (let cat = 1; cat < catCount; cat++) { // <-- start at 0
+        for (let cat = 1; cat < catCount; cat++) {
 
-            // Select Category
             await this.CategoryListData2.nth(cat).click();
             console.log(`Selected Category ${cat}`);
 
@@ -537,66 +582,54 @@ export default class EPRFields{
 
             for (let subCat1 = 0; subCat1 < subCat1Count; subCat1++) {
 
-                // 🔑 Re-select SubCat1 before iterating SubCat2
                 await this.SubCategoryListData.nth(subCat1).click();
                 console.log(`Selected SubCat1 ${subCat1}`);
 
-                // ---------- SUB CATEGORY 2 ----------
+                // ---------- SUB CATEGORY 2 (FIXED) ----------
                 await this.SubCategory2.click();
                 await this.SubCategory2List.first().waitFor({ state: 'visible' });
-                
-                // 🔑 Re-capture SubCat2 count after SubCat1 selection
-                // ✅ DOM-based count
-                const subCat2Count = await this.getSubCat2CountFromDOM();
-                console.log(`SUB CAT2 COUNT (DOM): ${subCat2Count}`);
 
-                if (subCat2Count === 0) {
+                // 📌 Snapshot SubCat2 options
+                const subCat2Indices = await this.getSubCat2ArrayFromDOM();
+                console.log(`SUB CAT2 OPTIONS:`, subCat2Indices);
+
+                if (subCat2Indices.length === 0) {
                     console.warn('No SubCat2 found, skipping...');
                     continue;
                 }
 
-                for (let subCat2 = 0; subCat2 < subCat2Count; subCat2++) {
-                    // 🔑 Re-open SubCat2 dropdown every iteration
-                        if (subCat2 > 0) {
-                            await this.SubCategory2.click();
-                            await this.SubCategory2List.first().waitFor({ state: 'visible' });
-                        }
+                for (const subCat2Text of subCat2Indices) {
 
-                    // 🔑 Click the nth SubCat2 option
-                    const subCat2Options = this.SubCategory2ListData;
-                    console.log(`SUBCAT2 OPTIONS: ${subCat2Options}`)
-                    const option = subCat2Options.nth(subCat2);
+                    await this.SubCategory2ListData
+                        .filter({ hasText: subCat2Text })
+                        .first()
+                        .click();
 
-                    await option.waitFor({ state: 'visible' });
-                    await option.click();
-
-                    console.log(
-                        `Processed → Cat=${cat}, SubCat1=${subCat1}, SubCat2=${subCat2}`
-                    );
+                    console.log('Selected SubCat2:', subCat2Text);
 
                     // ----- TRANSACTION -----
                     await this.AddTransBtn().click();
                     await this.InputFieldsonTransactions2();
                     await this.sidepanelCloseButton.click();
 
-                    // 🔑 wait for UI to stabilize
                     await this.page.waitForTimeout(500);
                 }
 
-                // 🔁 SubCat2 finished → move to next SubCat1
+                // 🔁 Move to next SubCat1
                 if (subCat1 + 1 < subCat1Count) {
                     await this.SubCategory.click();
                     await this.SubCategoryList.first().waitFor({ state: 'visible' });
                 }
             }
 
-            // 🔁 SubCat1 finished → move to next Category
+            // 🔁 Move to next Category
             if (cat + 1 < catCount) {
                 await this.Category.click();
                 await this.CategoryList.first().waitFor({ state: 'visible' });
             }
         }
     }
+
 
 
 

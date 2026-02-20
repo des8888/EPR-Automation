@@ -39,7 +39,7 @@ export default class Login {
     public async login(username: string, password: string) {
         await this.enterUsername(username)
         await this.enterPassword(password)
-        await this.page.locator('text=Expense Payment Requests').waitFor({ state: 'visible', timeout: 300000 });
+        await this.page.locator(`//button[@id='new-request-button']`).waitFor({ state: 'visible', timeout: 300000 });
     }
   
 }

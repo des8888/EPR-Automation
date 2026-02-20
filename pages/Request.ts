@@ -3,6 +3,7 @@ import data from '../data/filterData.json';
 
 export default class RequestPage {
     readonly page: Page;
+    readonly EPR: Locator;
     readonly NewRequestBtn: Locator;
     readonly ApproverName: Locator;
     readonly ApproverData: Locator;
@@ -19,8 +20,8 @@ export default class RequestPage {
 
     constructor(page: Page) {
         this.page = page;
-
-        this.NewRequestBtn = page.getByRole('button', { name: 'NEW REQUEST' });
+        this.EPR = page.locator(`//button[@id='new-request-button']`)
+        this.NewRequestBtn = page.getByText('New Request')
         this.ApproverName = page.getByRole('combobox', { name: 'Select Approver' });
         this.ApproverData = page.getByRole('option', { name: data.ReqName });
         this.ApplyFilterBtn = page.getByRole('button', { name: 'Apply Filter' });
@@ -47,6 +48,7 @@ export default class RequestPage {
     }
 
     async ClickNewRequest() {
+        await this.EPR.click();
         await this.NewRequestBtn.click();
     }
     async ClickSummaryTab() {
