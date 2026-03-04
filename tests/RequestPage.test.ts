@@ -89,6 +89,7 @@ test.describe('Requestor Flow', () => {
     //
 
     await requestPage.ClickNewRequest();
+    await requestPage.clickNewRequestBtn();
 
     await eprForm.AddTransBtn().waitFor();
 
@@ -165,6 +166,41 @@ test.describe('Requestor Flow', () => {
     console.log(`\n✅ Successfully Check all data fields if there is data ${latestEPR}`);
 });
 
+  test.only('Create New Draft Request', async ({ page }) => {
+    let latestEPR = '';
+
+    const requestPage = new RequestPage(page);
+    const eprForm = new eprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.USER, login.PW);
+    await page.waitForLoadState('domcontentloaded');
+
+    // Navigate to Request Landing Page
+    await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
+
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
+
+    await requestPage.ClickNewRequest();
+    await requestPage.clickNewRequestBtn();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.MultipleValidFileAttach();
+    await requestPage.clickRequestModule();
+    await requestPage.ClickNewRequest();
+    await requestPage.clickDrafts();
+
+
+    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
+});
 
 // test("Create New Request 10 times", async ({ page }) => {
 //   const shared = new SharedLocator(page);

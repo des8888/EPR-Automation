@@ -136,8 +136,8 @@ export default class EPRFields{
 
 
 
-        this.RefNo = page.getByPlaceholder('Enter Reference Number (max 1000 chars)');
-        this.Particulars = page.getByPlaceholder('Enter particulars (max 1000 chars)');
+        this.RefNo = page.locator('input[name="refNo"]')
+        this.Particulars = page.locator('input[name="particulars"]')
         this.FileAttach = page.locator(`input[type="file"]`)
         
         this.AddTransactionsBtn = page.getByRole('button', { name: 'Add a Transaction' })
@@ -257,6 +257,66 @@ export default class EPRFields{
 
         await this.FileAttach.setInputFiles('files/file_1.txt');
         console.log("SUCESS FILE ATTACH")
+    }
+
+    async InputOnFieldsForReturningEPRRequestor1(page){
+        await this.Company.click();
+        await page.waitForTimeout(3000);
+        await this.CompanySelect.click();
+        await this.Payee.click();
+        await page.waitForTimeout(4000);
+        await this.PayeeSearch.fill('Requestor');
+        //await this.PayeeSearch.fill('Accountant');
+        await page.waitForTimeout(4000);
+        await this.PayeeSelect.click();
+        
+        await this.BillingFrom.click();
+        await this.BillingFromDate.click()
+        console.log("SUCESS Input Billing From")
+        await this.BillingTo.click()
+        
+        await this.BillingToDate.click()
+        console.log("SUCESS Input Billing To")
+        await this.DueDate.click()
+        await this.DueSelectDate.first().click()
+        console.log("SUCESS Input Due date")
+        await this.ModeofPayment.click();
+        await this.MoPList.waitFor({state:'visible'})
+        const randomNum = Math.floor(Math.random() * 10) + 1;
+        console.log(randomNum); 
+        await this.MopListData.click();
+
+        await this.Category.click();
+        await this.CategoryList.waitFor({state:'visible'})
+        await this.CategoryListData.click();
+        
+        await this.SubCategory.click();
+        await this.SubCategoryList.first().waitFor({state:'visible'})
+        let count = await this.SubCategoryList.count();
+        console.log(`ETOOOOOOOOO: ${count}`)
+
+        const options = await this.SubCategoryListData.allTextContents();
+        console.log("Options in dropdown:", options);
+
+
+        const randomNum3 = Math.floor(Math.random() * count);
+        await this.SubCategoryListData.nth(randomNum3).click();
+
+
+        await this.SubCategory2.click();
+        await this.SubCategory2List.first().waitFor({ state: 'visible' });
+        let count2 = await this.SubCategory2List.count();
+        console.log(`ETO2: ${count2}`)
+        const options2 = await this.SubCategory2ListData.allTextContents();
+        console.log("Options in dropdown:", options2);
+        let randomNum4 = Math.floor(Math.random() * count2);
+        await this.SubCategory2ListData.nth(randomNum4).click();
+        console.log("SUCESS SUB CAT 2")
+        // const element =await this.SubCategory2ListData.innerHTML()
+        // // console.log(`ELEMENT ${element}`)
+        await this.RefNo.fill(dets.ReferenceNoEDIT);
+        await this.Particulars.fill(dets.ParticularsEDIT);
+
     }
 
     async InputOnFieldsForRequestor1(page){
@@ -418,6 +478,20 @@ export default class EPRFields{
         return requestNumber;
     }
 
+    async CompareEPRDetails() {
+        await expect(this.Company).toHaveValue(dets.Company)
+        await expect(this.Payee).toHaveValue(dets.Payee)
+        await expect(this.RefNo).toHaveValue(dets.ReferenceNoEDIT)
+        await expect(this.Particulars).toHaveValue(dets.ParticularsEDIT)
+        console.log("COMPARISON PASSED!")
+    }
+
+    async EditReturnedEPRforResubmission(latestEPR: string){
+        await this.RefNo.fill(`EDITED FROM ${latestEPR}`)
+        await this.Particulars.fill(`EDITED FROM ${latestEPR}`)
+    }
+    
+
     //FOR TEST
     async ClickAddTransActionCol(latestEPR:string) {
         // Find the row with your EPR number
@@ -429,14 +503,23 @@ export default class EPRFields{
 
         console.log(`Clicked Action button for EPR: ${latestEPR}`);
     }
-    async ClickActionCol(latestEPR:string) {
-        // Find the row with your EPR number
-        const row = this.page.getByRole('row', { name: latestEPR });
-        await row.waitFor({ state: 'visible', timeout: 60000 });
+    async ClickActionCol(latestEPR: string) {
 
-        // Then get the button inside that row
-        const actionButton = row.getByRole('button');
-        await actionButton.click();
+        if (!latestEPR || latestEPR.trim() === "") {
+            throw new Error("latestEPR is empty. Cannot locate row.");
+        }
+
+        const row = this.page
+            .getByRole('row')
+            .filter({ hasText: latestEPR });
+
+        const targetRow = row.first();
+
+        await targetRow.waitFor({ state: "visible", timeout: 60000 });
+
+        const actionButton = targetRow.getByRole('button');
+
+        await actionButton.first().click();
 
         console.log(`Clicked Action button for EPR: ${latestEPR}`);
     }
@@ -486,6 +569,10 @@ export default class EPRFields{
         await this.ActionAcknowledge.click()
         await this.AcknowledgeReq.click();
         await this.AcknowledgeReq.waitFor({ state: 'hidden', timeout: 20000 });
+    }
+
+    async EditReturnedRequest(){
+        await this.Edit.click()
     }
     async ClickDelete(){
         await this.Delete.click();

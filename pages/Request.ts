@@ -3,8 +3,10 @@ import data from '../data/filterData.json';
 
 export default class RequestPage {
     readonly page: Page;
+    readonly RequestModule: Locator;
     readonly EPR: Locator;
     readonly NewRequestBtn: Locator;
+    readonly DraftsBtn: Locator;
     readonly ApproverName: Locator;
     readonly ApproverData: Locator;
     readonly ApproverNameCol: Locator;
@@ -20,8 +22,10 @@ export default class RequestPage {
 
     constructor(page: Page) {
         this.page = page;
+        this.RequestModule = page.getByText('Requests', { exact: true })
         this.EPR = page.locator(`//button[@id='new-request-button']`)
         this.NewRequestBtn = page.getByText('New Request')
+        this.DraftsBtn = page.getByText('Drafts')
         this.ApproverName = page.getByRole('combobox', { name: 'Select Approver' });
         this.ApproverData = page.getByRole('option', { name: data.ReqName });
         this.ApplyFilterBtn = page.getByRole('button', { name: 'Apply Filter' });
@@ -49,7 +53,12 @@ export default class RequestPage {
 
     async ClickNewRequest() {
         await this.EPR.click();
-        await this.NewRequestBtn.click();
+    }
+    async clickNewRequestBtn(){
+        await this.NewRequestBtn.click()
+    }
+    async clickDrafts(){
+        await this.DraftsBtn.click();
     }
     async ClickSummaryTab() {
         await this.SummaryTab.click();
@@ -95,6 +104,10 @@ export default class RequestPage {
             console.log(`Row ${i + 1} Visible Text: "${visText}"`);
             await expect(visText).toBe(data.ReqName);
         }
+    }
+
+    async clickRequestModule(){
+        await this.RequestModule.click();
     }
 
 

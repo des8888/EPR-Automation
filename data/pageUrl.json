@@ -9,7 +9,7 @@
       "adminPage": "https://expense.sandbox.seaoil.com.ph/admin/approval-delegation"
     },
     "accounting": {
-      "accountingPage": "https://expense.sandbox.seaoil.com.ph/accounting"
+      "accountingPage": "https://expense.sandbox.seaoil.com.ph/accounting?tab=pending-approvals"
     },
     "eprForm":{
         "url":"https://expense.sandbox.seaoil.com.ph/request/new"

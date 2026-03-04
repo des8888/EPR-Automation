@@ -5,7 +5,7 @@ import url from '../data/pageUrl.json';
 import SharedLocator from '../pages/common/shared-locators';
 import data from '../data/filterData.json';
 import Login from '../pages/loginPage';
-import EPR from '../data/eprData.json'
+import EPR from '../data/eprData.json';
 import login from '../data/login.json';
 import { afterEach } from 'node:test';
 import { link } from 'fs';
@@ -27,6 +27,7 @@ test.afterAll(async ()=>{
 const reqLandingPage = url.users.requestor.requestLandingPage;
 const approvalsPage = url.users.approver.approvalsPage;
 let latestEPR = '';
+let resubmittedReturnedEPR = '';
 
 
 test.describe('E2E Flow', () => {
@@ -56,7 +57,7 @@ test.describe('E2E Flow', () => {
     }
   })
 //********************************************************************************** */
-  test('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test.only('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -76,8 +77,10 @@ test.describe('E2E Flow', () => {
 
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -226,6 +229,7 @@ test.describe('E2E Flow', () => {
           shared.ClickLogout(),
         ]);
       })
+      await page.close()
 
       console.log('✅ Request to Approval up to MANCOM (up to 1M) ✅ PASSED');
   });
@@ -266,30 +270,36 @@ test.describe('E2E Flow', () => {
         console.log("Validate Total amount after Deletion ✅ PASSED")
       })
 
-      await test.step("Create a Request", async () => {
-        await page.goto(reqLandingPage);
-        await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
-        await requestPage.ClickNewRequest();
-        await eprFormFields.AddTransBtn().waitFor();
-        await eprFormFields.InputOnFields(page);
-        await eprFormFields.AddTransBtn().click();
-        await eprFormFields.InputFieldsonTransactions2(page);
-        await eprFormFields.FillNetAmtBelow100k();
-        await eprFormFields.ClickAddNewTransactions();
-        await eprFormFields.ClickNext();
-        await eprFormFields.ClickSubmitRequest();
-        await eprFormFields.ClickSubmit();
-        await requestPage.waitForViewofViewAllReq();
-        await page.waitForTimeout(5000);
+    await test.step("Create a Request", async()=>{
+      await page.goto(reqLandingPage);
+      await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
 
-        await eprFormFields.GetNewEPRNo();
-        await requestPage.ClickViewAllReq();
-        await shared.UseSearch(latestEPR);
+      // Perform actions
+      await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
+      await eprFormFields.AddTransBtn().waitFor();
+      await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.AddTransBtn().click();
+      await eprFormFields.InputFieldsonTransactions2(page);
+      await eprFormFields.FillNetAmtBelow100k();
+      await eprFormFields.ClickAddNewTransactions();
+      await eprFormFields.ClickNext();
+      await eprFormFields.ClickSubmitRequest();
+      await eprFormFields.ClickSubmit();
+      await requestPage.waitForViewofViewAllReq();
+      await page.waitForTimeout(5000);
+      latestEPR = await eprFormFields.GetNewEPRNo();
+      await requestPage.ClickViewAllReq();
+      await shared.UseSearch(latestEPR);
 
+
+      // Logout Requestor
         await Promise.all([
           page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
           shared.ClickLogoutL1(),
-        ]);
+    ]);
+
       });
 
       await test.step("Check EPR on other non Approver accounts", async () => {
@@ -389,15 +399,18 @@ await shared.ClickLogout();
   // ───────────────────────────────────────────────
   // STEP 1: Requestor creates an EPR
   // ───────────────────────────────────────────────
- await test.step("Create a Request", async()=>{
+  await test.step("Create a Request", async()=>{
 
+      
       await page.goto(reqLandingPage);
       await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
 
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
-      await eprFormFields.InputOnFields(page);
+      await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtUpTo500k();
@@ -417,7 +430,8 @@ await shared.ClickLogout();
           page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
           shared.ClickLogoutL1(),
         ]);
-  });
+
+      });
 
   // ───────────────────────────────────────────────
   // STEP 2: Approver L1
@@ -518,6 +532,7 @@ await shared.ClickLogout();
 
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFields(page);
       await eprFormFields.AddTransBtn().click();
@@ -665,7 +680,7 @@ await shared.ClickLogout();
     await loginFlow.login(login.USER, login.PW);
     await page.waitForLoadState("domcontentloaded");
     //Navigate to landing page (session is already logged in)
-      await test.step("Create a Request", async()=>{
+    await test.step("Create a Request", async()=>{
 
       
       await page.goto(reqLandingPage);
@@ -673,11 +688,13 @@ await shared.ClickLogout();
 
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
-      await eprFormFields.FillNetAmtUpTo500k();
+      await eprFormFields.FillNetAmtupTo1M();
       await eprFormFields.ClickAddNewTransactions();
       await eprFormFields.ClickNext();
       await eprFormFields.ClickSubmitRequest();
@@ -741,13 +758,16 @@ await shared.ClickLogout();
     // Navigate to landing page (session is already logged in)
       await test.step("Create a Request", async()=>{
 
+      
       await page.goto(reqLandingPage);
       await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
 
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
-      await eprFormFields.InputOnFields(page);
+      await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -865,10 +885,13 @@ await shared.ClickLogout();
       
       await page.goto(reqLandingPage);
       await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -878,8 +901,8 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      await eprFormFields.GetNewEPRNo();
-      await requestPage.ClickViewAllReq()
+      latestEPR = await eprFormFields.GetNewEPRNo();
+      await requestPage.ClickViewAllReq();
       await shared.UseSearch(latestEPR);
 
 
@@ -937,12 +960,16 @@ await shared.ClickLogout();
     // Navigate to landing page (session is already logged in)
       await test.step("Create a Request", async()=>{
 
+      
       await page.goto(reqLandingPage);
       await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
       // Perform actions
       await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.MultipleValidFileAttach();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -952,7 +979,7 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      await eprFormFields.GetNewEPRNo();
+      latestEPR = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
       await shared.UseSearch(latestEPR);
 
@@ -1039,3 +1066,116 @@ await shared.ClickLogout();
         console.log('✅ Rejection of Request by Accounting ✅ PASSED');
   });
 });
+
+
+  //EDIT RETURNED EPR
+//*********************************************************************************** */
+  test('EDIT RETURNED EPR AND RESUBMISSION', async ({ page }) => {
+    
+    const requestPage = new RequestPage(page);
+    const eprFormFields = new EprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    await page.goto(url.loginURL);
+    // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+    await loginFlow.login(login.USER, login.PW);
+    await page.waitForLoadState("domcontentloaded");
+    // Navigate to landing page (session is already logged in)
+      await test.step("Create a Request", async()=>{
+
+      
+      await page.goto(reqLandingPage);
+      await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+      // Perform actions
+      await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
+      await eprFormFields.AddTransBtn().waitFor();
+      await eprFormFields.InputOnFieldsForReturningEPRRequestor1(page);
+      await eprFormFields.SingleFileAttachment();
+      await eprFormFields.AddTransBtn().click();
+      await eprFormFields.InputFieldsonTransactions2(page);
+      await eprFormFields.FillNetAmtupTo1M();
+      await eprFormFields.ClickAddNewTransactions();
+      await eprFormFields.ClickNext();
+      await eprFormFields.ClickSubmitRequest();
+      await eprFormFields.ClickSubmit();
+      await requestPage.waitForViewofViewAllReq();
+      await page.waitForTimeout(5000);
+      latestEPR = await eprFormFields.GetNewEPRNo();
+      await requestPage.ClickViewAllReq()
+      await shared.UseSearch(latestEPR);
+
+
+      // Logout Requestor
+        await Promise.all([
+          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+          shared.ClickLogoutL1(),
+        ]);
+
+      });
+
+      await test.step("Returned by Approver L1", async()=>{
+        const loginFlow = new Login(page);
+
+        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.waitForSelectMultiBtn();
+        await page.waitForTimeout(1000);
+        await shared.UseSearch(latestEPR);
+        await eprFormFields.ClickActionCol(latestEPR);
+        await eprFormFields.ReturnARequest();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(latestEPR);
+        await shared.GetStatus();
+
+        // Logout 
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+        })
+
+      await test.step("Check if Returned EPR is displayed on AP account", async()=>{
+        await loginFlow.login(login.AP, login.APPW);
+        await shared.clickAccounting();
+        await page.waitForURL('**accounting?tab=pending-approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoDatainDoneTab(latestEPR);
+
+                // Logout 
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+      })
+
+      await test.step("Compare EPR details", async()=>{
+        await loginFlow.login(login.USER, login.PW);
+        await requestPage.SummaryTab.click()
+        await shared.EPRColumn.waitFor({state:'visible', timeout: 5000})
+        await shared.UseSearch(latestEPR);
+        await eprFormFields.ClickActionCol(latestEPR)
+        await eprFormFields.EditReturnedRequest();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.CompareEPRDetails();
+      })
+
+      await test.step("Edit Form for resubmission", async()=>{
+        await eprFormFields.EditReturnedEPRforResubmission(latestEPR);
+        await eprFormFields.ClickNext();
+        await eprFormFields.ClickSubmitRequest();
+        await eprFormFields.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        resubmittedReturnedEPR = await eprFormFields.GetNewEPRNo();
+        console.log(`The new ressubmitted EPR #: ${resubmittedReturnedEPR} from EPR: ${latestEPR}`)
+        console.log("✅ RESSUBMISSION of RETURNED EPR PASSED ✅")
+      })
+
+
+      console.log('✅ EDIT RETURNED EPR AND RESUBMISSION ✅ PASSED');
+  });

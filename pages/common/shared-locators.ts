@@ -57,7 +57,7 @@ export default class SharedLocator{
 
     constructor(page: Page){
         this.page = page;
-        this.EPRColumn = page.locator("//tbody/tr/td[1]");
+        this.EPRColumn = page.locator("//tbody/tr[1]/td[1]")
         this.EPRColumnAcc = page.locator("//tbody/tr[1]/td[1]");
         this.EPRColumn2 = page.locator("//tbody//tr[2]/td[1]");
 
@@ -76,7 +76,7 @@ export default class SharedLocator{
         this.CategoryColumn = page.locator("//tbody//td[3]")
         this.SubCategoryColumn = page.locator("//tbody//td[4]")
 
-        this.SearchField = page.locator("input[name$='searchKey']")
+        this.SearchField = page.getByRole('textbox', { name: 'Search…' })
         this.SearchFieldCancel = page.locator('form').getByRole('button').filter({ hasText: /^$/ }).nth(4)
 
         this.DateReqFIlterFrom =page.locator('input[name="startDateSubForm"]');
@@ -109,6 +109,10 @@ export default class SharedLocator{
     get DoneTabButton() {
         return this.DoneTab;
     }
+    async waitForSelectMultiBtn(){
+        await this.SelectMultiple.waitFor({state:'visible', timeout: 1000})
+    }
+
     async GetStatus(){
         let text = await this.Status.innerText();
         console.log(`EPR STATUS: ${text}`)
@@ -380,7 +384,7 @@ export default class SharedLocator{
                         return cells.some(cell => cell.textContent?.trim() === epr);
                     },
                     latestEPR,
-                    { timeout: 60000 }
+                    { timeout: 50000 }
                 );
 
                 // Once found, confirm and log which row
@@ -423,13 +427,15 @@ export default class SharedLocator{
         console.log(`EPR found: ${eprNo}`);
     }
 
-async ValidateUseSearchforNoData(latestEPR: string, maxRetries: number = 5) {
+    async ValidateUseSearchforNoData(latestEPR: string, maxRetries: number = 5) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         console.log(`Attempt ${attempt} to validate No Data message.`);
 
         // Initial search
-        await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
-        await this.SearchField.fill(latestEPR);
+        await this.SearchField.fill("");
+        await this.EPRColumn.first().waitFor({state:'visible', timeout:5000})
+        await this.SearchField.fill("");
+        await this.SearchField.pressSequentially(latestEPR, {delay:500});
         await this.SearchField.press('Enter');
 
         // Wait briefly for results to load
@@ -475,6 +481,61 @@ async ValidateUseSearchforNoData(latestEPR: string, maxRetries: number = 5) {
     // If we reach here, all retries failed
     throw new Error(`"No Data" message did NOT appear after ${maxRetries} attempts for EPR ${latestEPR}`);
 }
+
+    async ValidateUseSearchforNoDatainDoneTab(latestEPR: string, maxRetries: number = 5) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log(`Attempt ${attempt} to validate No Data message.`);
+
+        // Initial search
+        await this.DoneTab.click();
+        await this.SearchField.fill("");
+        await this.SearchField.pressSequentially(latestEPR, {delay:500});
+        await this.SearchField.press('Enter');
+
+        // Wait briefly for results to load
+        await this.page.waitForTimeout(5000);
+
+        try {
+            // Check if EPR column has visible rows
+            const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
+
+            if (eprVisible) {
+                console.log(`EPR column visible. Reloading page and re-searching...`);
+                if (!this.page.isClosed()) {
+                    await this.page.reload({ waitUntil: 'load' });
+                }
+                await this.SearchField.waitFor({ state: 'visible', timeout: 10000 });
+                await this.SearchField.fill(latestEPR);
+                await this.SearchField.press('Enter');
+                await this.page.waitForTimeout(2000);
+            }
+
+            // Check if No Data message appears
+            const noDataVisible = await this.NoDataMessage.isVisible().catch(() => false);
+
+            if (noDataVisible) {
+                // Success! Exit the loop
+                await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 10000 });
+                console.log(`✅ No Data message validated successfully.`);
+                return;
+            } else {
+                console.log(`No Data message not visible yet.`);
+            }
+        } catch (err) {
+            console.log(`Error during attempt ${attempt}: ${err}`);
+        }
+
+        // Retry delay (optional)
+        if (attempt < maxRetries) {
+            console.log(`Retrying... (${attempt + 1}/${maxRetries})`);
+            await this.page.waitForTimeout(1000); // optional pause before retry
+        }
+    }
+
+    // If we reach here, all retries failed
+    throw new Error(`"No Data" message did NOT appear after ${maxRetries} attempts for EPR ${latestEPR}`);
+}
+
 
 
 
