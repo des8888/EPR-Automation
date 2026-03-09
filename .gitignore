@@ -9,3 +9,4 @@ auth/
 .auth/
 .env
 data/login.json
+dist/
