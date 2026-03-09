@@ -5,6 +5,7 @@ import url from '../data/pageUrl.json';
 import SharedLocator from '../pages/common/shared-locators';
 import Login from '../pages/loginPage';
 import login from '../data/login.json';
+import chalk from 'chalk';
 
 const reqLandingPage = url.users.requestor.requestLandingPage;
 
@@ -115,92 +116,95 @@ test.describe('Requestor Flow', () => {
     await requestPage.ClickViewAllReq();
     await shared.UseSearch(latestEPR);
 
-    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
+    await page.close()
+
+
+    console.log(chalk.green(`\n✅ Successfully created and validated EPR: ${latestEPR}`));
 });
 
-  test('Check all data fields if there is data', async ({ page }) => {
-    let latestEPR = '';
+//   test('Check all data fields if there is data', async ({ page }) => {
+//     let latestEPR = '';
 
-    const requestPage = new RequestPage(page);
-    const eprForm = new eprFields(page);
-    const shared = new SharedLocator(page);
-    const loginFlow = new Login(page);
+//     const requestPage = new RequestPage(page);
+//     const eprForm = new eprFields(page);
+//     const shared = new SharedLocator(page);
+//     const loginFlow = new Login(page);
 
-    // Login
-    await page.goto(url.loginURL);
-    await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
-    await page.waitForLoadState('domcontentloaded');
+//     // Login
+//     await page.goto(url.loginURL);
+//     await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+//     await page.waitForLoadState('domcontentloaded');
 
-    // Navigate to Request Landing Page
-    await page.goto(reqLandingPage);
-    await page.waitForURL('**/requests');
+//     // Navigate to Request Landing Page
+//     await page.goto(reqLandingPage);
+//     await page.waitForURL('**/requests');
 
-    //
-    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
-    //
+//     //
+//     // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+//     //
 
-    await requestPage.ClickNewRequest();
+//     await requestPage.ClickNewRequest();
 
-    await eprForm.AddTransBtn().waitFor();
+//     await eprForm.AddTransBtn().waitFor();
 
-    await eprForm.ValidateAllfieldsifPresent();
+//     await eprForm.ValidateAllfieldsifPresent();
 
-    await eprForm.InputFieldsonTransactions2(page);
-    // await eprForm.FillNetAmtupTo1M();
+//     await eprForm.InputFieldsonTransactions2(page);
+//     // await eprForm.FillNetAmtupTo1M();
 
-    // await eprForm.ClickAddNewTransactions();
-    // await eprForm.ClickNext();
-    // await eprForm.ClickSubmitRequest();
-    // await eprForm.ClickSubmit();
+//     // await eprForm.ClickAddNewTransactions();
+//     // await eprForm.ClickNext();
+//     // await eprForm.ClickSubmitRequest();
+//     // await eprForm.ClickSubmit();
 
-    // Wait for confirmation page
-    await requestPage.waitForViewofViewAllReq();
+//     // Wait for confirmation page
+//     await requestPage.waitForViewofViewAllReq();
 
-    // Get newly created EPR number
-    latestEPR = await eprForm.GetNewEPRNo();
+//     // Get newly created EPR number
+//     latestEPR = await eprForm.GetNewEPRNo();
 
-    // Navigate to View All Requests and search
-    await requestPage.ClickViewAllReq();
-    await shared.UseSearch(latestEPR);
+//     // Navigate to View All Requests and search
+//     await requestPage.ClickViewAllReq();
+//     await shared.UseSearch(latestEPR);
 
-    console.log(`\n✅ Successfully Check all data fields if there is data ${latestEPR}`);
-});
+//     console.log(`\n✅ Successfully Check all data fields if there is data ${latestEPR}`);
+// });
 
-  test.only('Create New Draft Request', async ({ page }) => {
-    let latestEPR = '';
+//   test.only('Create New Draft Request', async ({ page }) => {
+//     let latestEPR = '';
 
-    const requestPage = new RequestPage(page);
-    const eprForm = new eprFields(page);
-    const shared = new SharedLocator(page);
-    const loginFlow = new Login(page);
+//     const requestPage = new RequestPage(page);
+//     const eprForm = new eprFields(page);
+//     const shared = new SharedLocator(page);
+//     const loginFlow = new Login(page);
 
-    // Login
-    await page.goto(url.loginURL);
-    await loginFlow.login(login.USER, login.PW);
-    await page.waitForLoadState('domcontentloaded');
+//     // Login
+//     await page.goto(url.loginURL);
+//     await loginFlow.login(login.USER, login.PW);
+//     await page.waitForLoadState('domcontentloaded');
 
-    // Navigate to Request Landing Page
-    await page.goto(reqLandingPage);
-    await page.waitForURL('**/requests');
+//     // Navigate to Request Landing Page
+//     await page.goto(reqLandingPage);
+//     await page.waitForURL('**/requests');
 
-    //
-    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
-    //
+//     //
+//     // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+//     //
 
-    await requestPage.ClickNewRequest();
-    await requestPage.clickNewRequestBtn();
+//     await requestPage.ClickNewRequest();
+//     await requestPage.clickNewRequestBtn();
 
-    await eprForm.AddTransBtn().waitFor();
+//     await eprForm.AddTransBtn().waitFor();
 
-    await eprForm.InputOnFieldsForRequestor1(page);
-    await eprForm.MultipleValidFileAttach();
-    await requestPage.clickRequestModule();
-    await requestPage.ClickNewRequest();
-    await requestPage.clickDrafts();
+//     await eprForm.InputOnFieldsForRequestor1(page);
+//     await eprForm.MultipleValidFileAttach();
+//     await requestPage.clickRequestModule();
+//     await requestPage.ClickNewRequest();
+//     await requestPage.clickDrafts();
 
 
-    console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
-});
+//     console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
+// });
 
 // test("Create New Request 10 times", async ({ page }) => {
 //   const shared = new SharedLocator(page);

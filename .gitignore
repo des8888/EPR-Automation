@@ -8,3 +8,4 @@ files/
 auth/
 .auth/
 .env
+data/login.json

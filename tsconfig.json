@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "esnext",                   // Latest JS features
+    "module": "esnext",                   // ESM modules
+    "moduleResolution": "node",
+    "esModuleInterop": true,              // Allows import default from CommonJS
+    "resolveJsonModule": true,            // Allows importing JSON
+    "strict": true,                        // Enable type checking
+    "outDir": "dist",                      // Optional: compiled JS output folder
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "pages/**/*.ts",
+    "tests/**/*.ts",
+    "utils/**/*.ts"
+  ]
+}

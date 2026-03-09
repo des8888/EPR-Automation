@@ -1,4 +1,5 @@
 import { test, expect, Browser } from '@playwright/test';
+import chalk from 'chalk';
 import RequestPage from '../pages/Request';
 import EprFields from '../pages/EPRformFields';
 import url from '../data/pageUrl.json';
@@ -57,7 +58,7 @@ test.describe('E2E Flow', () => {
     }
   })
 //********************************************************************************** */
-  test.only('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -231,7 +232,7 @@ test.describe('E2E Flow', () => {
       })
       await page.close()
 
-      console.log('✅ Request to Approval up to MANCOM (up to 1M) ✅ PASSED');
+      console.log(chalk.green('✅ Request to Approval up to MANCOM (up to 1M) ✅ PASSED'));
   });
 //********************************************************************************** */
   test('Request to Approval up to Department Manager (up to 100k)', async ({ page }) => {
@@ -535,6 +536,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFields(page);
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -1070,7 +1072,7 @@ await shared.ClickLogout();
 
   //EDIT RETURNED EPR
 //*********************************************************************************** */
-  test('EDIT RETURNED EPR AND RESUBMISSION', async ({ page }) => {
+  test.only('EDIT RETURNED EPR AND RESUBMISSION', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -1175,6 +1177,7 @@ await shared.ClickLogout();
         console.log(`The new ressubmitted EPR #: ${resubmittedReturnedEPR} from EPR: ${latestEPR}`)
         console.log("✅ RESSUBMISSION of RETURNED EPR PASSED ✅")
       })
+      await page.close();
 
 
       console.log('✅ EDIT RETURNED EPR AND RESUBMISSION ✅ PASSED');

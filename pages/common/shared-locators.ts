@@ -2,6 +2,7 @@ import { Page, Locator , expect, selectors} from "@playwright/test";
 import data from '../../data/filterData.json';
 import EPR from '../../data/eprData.json'
 import { count } from "console";
+import chalk from "chalk";
 export default class SharedLocator{
     readonly page: Page;
     readonly EPRColumn: Locator;
@@ -115,16 +116,16 @@ export default class SharedLocator{
 
     async GetStatus(){
         let text = await this.Status.innerText();
-        console.log(`EPR STATUS: ${text}`)
+        console.log(chalk.blue(`EPR STATUS: ${text}`))
     }
     async AccGetStatus(){
         let text = await this.AccStatus.innerText();
-        console.log(`STATUS: ${text}`)
+        console.log(chalk.blue(`EPR STATUS: ${text}`))
     }
     async ToastNotificationMessage(){
         await this.Toast.waitFor({ state: 'visible', timeout: 5000 });
         let toastText = await this.Toast.innerText()
-        console.log(`TOAST NOTIFICATION: ${toastText}`)
+        console.log(chalk.blue(`TOAST NOTIFICATION: ${toastText}`))
     }
     async ClickFunnelFilter(){
         await this.FunnelFilter.click();
@@ -342,14 +343,17 @@ export default class SharedLocator{
         await this.Logout.click();
         await this.YesLogout.click();
         await this.page.locator('text=Email Address').waitFor({ state: 'visible', timeout: 100000 });
+        console.log(chalk.green(`LOGGEED OUT`))
     }
     async ClickLogoutL1(){
         await this.L1Logout.click();
         await this.YesLogout.click();
+        console.log(chalk.green(`LOGGEED OUT`))
     }
     async ClickLogoutAcc(){
         await this.AccLogout.click();
         await this.YesLogout.click();
+        console.log(chalk.green(`LOGGEED OUT`))
     }
 
     async ClickApprovals(){
@@ -369,7 +373,7 @@ export default class SharedLocator{
     async UseSearch(latestEPR: string, maxRetries: number = 5) {
         
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            console.log(`Search attempt ${attempt} for EPR ${latestEPR}`);
+            console.log(chalk.yellow(`🔍 Search attempt ${attempt} for EPR ${latestEPR}`));
 
             // Fill search field and trigger search
             await this.EPRColumn.first().waitFor({state:'visible', timeout:5000})
@@ -392,7 +396,7 @@ export default class SharedLocator{
                 for (let i = 0; i < count; i++) {
                     const eprText = (await this.EPRColumn.nth(i).innerText()).trim();
                     if (eprText === latestEPR) {
-                        console.log(`EPR ${latestEPR} found at row ${i + 1}`);
+                        console.log(chalk.green('🔍 Search Info:'), `EPR ${latestEPR} found at row ${i + 1}`);
                         await expect(this.EPRColumn.nth(i)).toHaveText(latestEPR, { timeout: 5000 });
                         return; // stop once found
                     }
@@ -429,7 +433,7 @@ export default class SharedLocator{
 
     async ValidateUseSearchforNoData(latestEPR: string, maxRetries: number = 5) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        console.log(`Attempt ${attempt} to validate No Data message.`);
+        console.log(chalk.yellow(`🔍 Attempt ${attempt} to validate No Data message.`));
 
         // Initial search
         await this.SearchField.fill("");
@@ -446,7 +450,7 @@ export default class SharedLocator{
             const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
 
             if (eprVisible) {
-                console.log(`EPR column visible. Reloading page and re-searching...`);
+                console.log(chalk.red(`EPR column visible. Reloading page and re-searching 🔍 ...`));
                 if (!this.page.isClosed()) {
                     await this.page.reload({ waitUntil: 'load' });
                 }
@@ -462,18 +466,18 @@ export default class SharedLocator{
             if (noDataVisible) {
                 // Success! Exit the loop
                 await expect(this.NoDataMessage).toHaveText(data.NoDataMessage, { timeout: 10000 });
-                console.log(`✅ No Data message validated successfully.`);
+                console.log(chalk.green(`✅ No Data message validated successfully.`));
                 return;
             } else {
-                console.log(`No Data message not visible yet.`);
+                console.log(chalk.red(`No Data message not visible yet.`));
             }
         } catch (err) {
-            console.log(`Error during attempt ${attempt}: ${err}`);
+            console.log(chalk.red(`Error during attempt ${attempt}: ${err}`));
         }
 
         // Retry delay (optional)
         if (attempt < maxRetries) {
-            console.log(`Retrying... (${attempt + 1}/${maxRetries})`);
+            console.log(chalk.yellow(`Retrying... (${attempt + 1}/${maxRetries})`));
             await this.page.waitForTimeout(1000); // optional pause before retry
         }
     }
@@ -500,7 +504,7 @@ export default class SharedLocator{
             const eprVisible = await this.EPRColumn.first().isVisible().catch(() => false);
 
             if (eprVisible) {
-                console.log(`EPR column visible. Reloading page and re-searching...`);
+                console.log(chalk.yellow(`EPR column visible. Reloading page and re-searching...`));
                 if (!this.page.isClosed()) {
                     await this.page.reload({ waitUntil: 'load' });
                 }
