@@ -5,13 +5,15 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: 1,
+  workers: 4,
 
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
   timeout: 400000,
+  //timeout: 50000,
 
   use: {
     actionTimeout: 400000,
+    //actionTimeout: 50000,
     trace: 'on',
     screenshot: 'only-on-failure',
     video: 'on',
@@ -21,5 +23,6 @@ export default defineConfig({
 
   expect: {
     timeout: 300000,
+    //timeout: 3000,
   },
 });

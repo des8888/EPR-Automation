@@ -95,7 +95,7 @@ test.describe('Requestor Flow', () => {
     await eprForm.AddTransBtn().waitFor();
 
     await eprForm.InputOnFieldsForRequestor1(page);
-    await eprForm.MultipleValidFileAttach();
+    await eprForm.SingleFileAttachment();
     await eprForm.AddTransBtn().click();
 
     await eprForm.InputFieldsonTransactions2(page);

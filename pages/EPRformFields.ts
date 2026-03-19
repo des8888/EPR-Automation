@@ -85,6 +85,9 @@ export default class EPRFields{
     readonly SubmitBtn: Locator;
     readonly EPRNewNumber: Locator;
 
+    //after submission
+    readonly SubmitAnotherEPRBtn: Locator;
+
 
     constructor (page: Page){
         this.page = page;
@@ -111,27 +114,21 @@ export default class EPRFields{
 
         const randomNum2 = Math.floor(Math.random() * 9) + 1;
         this.CategoryListData = page.getByRole('button').nth(randomNum2)
+        //this.CategoryListData = page.locator(':text("EMPLOYEE")')
         this.CategoryListData2 = page.getByRole('button');
         
         this.SubCategory = page.getByRole('textbox', { name: 'Select Sub Category 1' })
         this.SubCategoryList = page.getByRole('button').filter({hasText: /^[A-Z\s]+$/,});
 
         this.SubCategoryListData = page.locator(".MuiList-root.MuiList-padding div[role='button']:visible");
-        //const randomNum3 = Math.floor(Math.random() * 10) + 1;
-        // const subCategoryListContainer = page.locator(".MuiList-root.MuiList-padding");
-        // this.SubCategoryListData = page
-        // .locator(".MuiList-root.MuiList-padding div[role='button']")
-        // .filter({ hasText: /^[A-Z\s]+$/ });
+        //this.SubCategoryListData = page.getByRole('button', { name: 'LIQUIDATION', exact: true })
+        //const randomNum3 = Math.floor(Math.random() * 10) + 1
 
         
         this.SubCategory2 = page.getByRole('textbox', { name: 'Select Sub Category 2' })
-        this.SubCategory2List = page.getByRole('button').filter({hasText: /^[A-Z\s]+$/,});
+        this.SubCategory2List = page.getByText('Select an Option')
 
         //this.SubCategory2ListData = page.getByRole('button', { name: 'COCOSHELL' })
-        
-        // this.SubCategory2ListData = page
-        // .locator(".MuiList-root.MuiList-padding div[role='button']")
-        // .filter({ hasText: /^[A-Z\s]+$/ });
 
         this.SubCategory2ListData = page.locator(".MuiList-root.MuiList-padding div[role='button']:visible");
 
@@ -196,7 +193,8 @@ export default class EPRFields{
         this.SubmitReq = page.getByRole('button', { name: 'Submit Request' });
         this.SubmitBtn = page.getByRole('button', { name: 'Submit' });
         this.EPRNewNumber = page.getByText('Expense Payment Request No.');
-
+        //after
+        this.SubmitAnotherEPRBtn = page.getByRole('button', { name: 'Submit Another Request' })
 
 
     }
@@ -206,6 +204,11 @@ export default class EPRFields{
     AddTransBtn() {
         return this.AddTransactionsBtn;
     }
+
+    async clickSubmitAnotherEPR(){
+        this.SubmitAnotherEPRBtn.click();
+    }
+
     async InputOnFields(){
         await this.BillingFrom.click();
         await this.BillingFromDate.click()
@@ -299,17 +302,20 @@ export default class EPRFields{
 
         const randomNum3 = Math.floor(Math.random() * count);
         await this.SubCategoryListData.nth(randomNum3).click();
+        //await this.SubCategoryListData.click();
 
         console.log(chalk.green('=== ✔️ SUCESS Input Sub-Category 1 ==='));
         await this.SubCategory2.click();
         await this.SubCategory2List.first().waitFor({ state: 'visible' });
         let count2 = await this.SubCategory2List.count();
-        //console.log(`ETO2: ${count2}`)
+        console.log(chalk.yellow(`SUB CAT 2 LIST: ${count2}`))
+
+
+
         const options2 = await this.SubCategory2ListData.allTextContents();
-        //console.log("Options in dropdown:", options2);
+        console.log(chalk.yellow("Options in dropdown of SUB CAT2:", options2));
         let randomNum4 = Math.floor(Math.random() * count2);
         await this.SubCategory2ListData.nth(randomNum4).click();
-        console.log("SUCESS SUB CAT 2")
         // const element =await this.SubCategory2ListData.innerHTML()
         // // console.log(`ELEMENT ${element}`)
         console.log(chalk.green('=== ✔️ SUCESS Input Sub-Category2 ==='));
@@ -365,6 +371,9 @@ export default class EPRFields{
         const randomNum3 = Math.floor(Math.random() * count);
         await this.SubCategoryListData.nth(randomNum3).click();
 
+
+        //TEST SPECIFIC DATA 
+        //await this.SubCategoryListData.click();
         console.log(chalk.blue('=== ✔️ SUCESS Input Sub-Category 1 ==='));
         await this.SubCategory2.click();
         await this.SubCategory2List.first().waitFor({ state: 'visible' });
@@ -456,8 +465,8 @@ export default class EPRFields{
         console.log(chalk.magenta('=== ✔️ SUCESS Input Amount more than 1M ==='));
     }
     async SingleFileAttachment(){
-        await this.FileAttach.setInputFiles('files/sample99mb.zip');
-        console.log(chalk.green('=== ✔️ SUCESS File Attach ==='));
+        await this.FileAttach.setInputFiles('files/valid files/expense.jpg');
+        console.log(chalk.green('=== ✔️ SUCESS Single File Attach ==='));
     }
     async MultipleValidFileAttach(){
         await this.FileAttach.setInputFiles(['files/valid files/Document7.docx', 
@@ -468,7 +477,7 @@ export default class EPRFields{
             'files/valid files/sample.zip',
             'files/valid files/SEAOIL.pdf',
             'files/valid files/TESTING`~!@#$%^&()_+{}`.docx' ]);
-            console.log(chalk.green('=== ✔️ SUCESS File Attach ==='));
+            console.log(chalk.green('=== ✔️ SUCESS Multiple File Attach ==='));
     }
     
     async ClickAddNewTransactions(){
@@ -527,9 +536,9 @@ export default class EPRFields{
             throw new Error("latestEPR is empty. Cannot locate row.");
         }
 
-        const row = this.page
-            .getByRole('row')
-            .filter({ hasText: latestEPR });
+        const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//td`).last();
+            // .locator('svg:visible')
+            // .filter({ hasText: latestEPR });
 
         const targetRow = row.first();
 

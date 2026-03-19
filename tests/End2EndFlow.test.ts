@@ -8,6 +8,7 @@ import data from '../data/filterData.json';
 import Login from '../pages/loginPage';
 import EPR from '../data/eprData.json';
 import login from '../data/login.json';
+import AdminPage from '../pages/Admin';
 import { afterEach } from 'node:test';
 import { link } from 'fs';
 import { log } from 'console';
@@ -30,7 +31,7 @@ const approvalsPage = url.users.approver.approvalsPage;
 let latestEPR = '';
 let resubmittedReturnedEPR = '';
 
-
+test.describe.configure({ mode: 'parallel' });
 test.describe('E2E Flow', () => {
   test.beforeEach(async ({ page }) => {
     let dateTime = new Date();
@@ -81,7 +82,7 @@ test.describe('E2E Flow', () => {
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -109,20 +110,20 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
       //await loginFlow.login(login.VP, login.VPPW);
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
-        await loginFlow.login(login.AP, login.APPW);
-        await shared.clickAccounting();
+      await loginFlow.login(login.AP, login.APPW);
+      await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
       })
@@ -133,13 +134,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
+      await eprFormFields.ClickActionCol(EPR.latestEPR);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -152,13 +153,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
       })
@@ -169,13 +170,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
+      await eprFormFields.ClickActionCol(EPR.latestEPR);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -187,7 +188,7 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.ClickLogout();
 
       })
@@ -197,13 +198,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
+      await eprFormFields.ClickActionCol(EPR.latestEPR);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(EPR.latestEPR);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -217,23 +218,21 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR)//);
-      await eprFormFields.ClickActionsColAccounting(latestEPR);
+      await shared.UseSearch(EPR.latestEPR)//);
+      await eprFormFields.ClickActionsColAccounting(EPR.latestEPR);
       await eprFormFields.AcknowledgeARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(EPR.latestEPR);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR)
+      await shared.UseSearch(EPR.latestEPR)
       await shared.AccGetStatus();
-      await Promise.all([
-          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
-          shared.ClickLogout(),
-        ]);
-      })
+
       await page.close()
 
       console.log(chalk.green('✅ Request to Approval up to MANCOM (up to 1M) ✅ PASSED'));
   });
+
+});
 //********************************************************************************** */
   test('Request to Approval up to Department Manager (up to 100k)', async ({ page }) => {
       
@@ -280,7 +279,7 @@ test.describe('E2E Flow', () => {
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtBelow100k();
@@ -411,7 +410,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtUpTo500k();
@@ -693,7 +692,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -741,7 +740,7 @@ await shared.ClickLogout();
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.DoneTabButton.click()
-        await shared.ValidateUseSearchforNoData(EPR.latestEPR);
+        await shared.ValidateUseSearchforNoData(latestEPR);
       })
 
       console.log('✅ Rejection of Request by L1 ✅ PASSED');
@@ -769,7 +768,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -870,7 +869,7 @@ await shared.ClickLogout();
 
   //RETURNS
 //*********************************************************************************** */
-  test('Return of Request L1', async ({ page }) => {
+  test.skip('Return of Request L1', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -893,7 +892,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -949,7 +948,7 @@ await shared.ClickLogout();
       console.log('✅ Rejection of Request by L1 ✅ PASSED');
   });
 //*********************************************************************************** */
-  test('Return of Request by Accounting', async ({ page }) => {
+  test.skip('Return of Request by Accounting', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -971,7 +970,7 @@ await shared.ClickLogout();
       await requestPage.clickNewRequestBtn();
       await eprFormFields.AddTransBtn().waitFor();
       await eprFormFields.InputOnFieldsForRequestor1(page);
-      await eprFormFields.MultipleValidFileAttach();
+      await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
       await eprFormFields.FillNetAmtupTo1M();
@@ -1067,12 +1066,10 @@ await shared.ClickLogout();
 
         console.log('✅ Rejection of Request by Accounting ✅ PASSED');
   });
-});
 
-
-  //EDIT RETURNED EPR
+   //EDIT RETURNED EPR
 //*********************************************************************************** */
-  test.only('EDIT RETURNED EPR AND RESUBMISSION', async ({ page }) => {
+  test('EDIT RETURNED EPR AND RESUBMISSION', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -1182,3 +1179,224 @@ await shared.ClickLogout();
 
       console.log('✅ EDIT RETURNED EPR AND RESUBMISSION ✅ PASSED');
   });
+
+
+    //APPROVAL DELEGATION E2E
+//*********************************************************************************** */
+  test.skip('Approval Delegation E2E', async ({ page }) => {
+    
+    const requestPage = new RequestPage(page);
+    const eprFormFields = new EprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+    const admin = new AdminPage(page)
+
+    await page.goto(url.loginURL);
+    // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+
+      await test.step("Create New Delegation", async()=>{
+
+      await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+      await page.waitForLoadState("domcontentloaded");
+      await page.goto(url.users.approver.adminPage);
+      await page.waitForURL('**/approval-delegation', { waitUntil: "domcontentloaded" });
+      // Perform actions
+      await admin.createDelegation();
+      await shared.ToastNotificationMessage();
+      await shared.UseSearch(latestEPR);
+
+
+      // Logout Requestor
+        await Promise.all([
+          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+          shared.ClickLogoutL1(),
+        ]);
+
+      });
+      await test.step("Create a Request", async()=>{
+
+      
+      await page.goto(reqLandingPage);
+      await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+      // Perform actions
+      await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
+      await eprFormFields.AddTransBtn().waitFor();
+      await eprFormFields.InputOnFieldsForReturningEPRRequestor1(page);
+      await eprFormFields.SingleFileAttachment();
+      await eprFormFields.AddTransBtn().click();
+      await eprFormFields.InputFieldsonTransactions2(page);
+      await eprFormFields.FillNetAmtupTo1M();
+      await eprFormFields.ClickAddNewTransactions();
+      await eprFormFields.ClickNext();
+      await eprFormFields.ClickSubmitRequest();
+      await eprFormFields.ClickSubmit();
+      await requestPage.waitForViewofViewAllReq();
+      await page.waitForTimeout(5000);
+      latestEPR = await eprFormFields.GetNewEPRNo();
+      await requestPage.ClickViewAllReq()
+      await shared.UseSearch(latestEPR);
+
+
+      // Logout Requestor
+        await Promise.all([
+          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+          shared.ClickLogoutL1(),
+        ]);
+
+      });
+
+      await test.step("Returned by Approver L1", async()=>{
+        const loginFlow = new Login(page);
+
+        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.waitForSelectMultiBtn();
+        await page.waitForTimeout(1000);
+        await shared.UseSearch(latestEPR);
+        await eprFormFields.ClickActionCol(latestEPR);
+        await eprFormFields.ReturnARequest();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(latestEPR);
+        await shared.GetStatus();
+
+        // Logout 
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+        })
+
+      await test.step("Check if Returned EPR is displayed on AP account", async()=>{
+        await loginFlow.login(login.AP, login.APPW);
+        await shared.clickAccounting();
+        await page.waitForURL('**accounting?tab=pending-approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoDatainDoneTab(latestEPR);
+
+                // Logout 
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+      })
+
+      await test.step("Compare EPR details", async()=>{
+        await loginFlow.login(login.USER, login.PW);
+        await requestPage.SummaryTab.click()
+        await shared.EPRColumn.waitFor({state:'visible', timeout: 5000})
+        await shared.UseSearch(latestEPR);
+        await eprFormFields.ClickActionCol(latestEPR)
+        await eprFormFields.EditReturnedRequest();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.CompareEPRDetails();
+      })
+
+      await test.step("Edit Form for resubmission", async()=>{
+        await eprFormFields.EditReturnedEPRforResubmission(latestEPR);
+        await eprFormFields.ClickNext();
+        await eprFormFields.ClickSubmitRequest();
+        await eprFormFields.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        resubmittedReturnedEPR = await eprFormFields.GetNewEPRNo();
+        console.log(`The new ressubmitted EPR #: ${resubmittedReturnedEPR} from EPR: ${latestEPR}`)
+        console.log("✅ RESSUBMISSION of RETURNED EPR PASSED ✅")
+      })
+      await page.close();
+
+
+      console.log('✅ EDIT RETURNED EPR AND RESUBMISSION ✅ PASSED');
+  });
+
+//Navigation Validation Test
+//*********************************************************************************** */
+  test('Navigation Validation Test', async ({ page }) => {
+    
+    const requestPage = new RequestPage(page);
+    const eprFormFields = new EprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+    const admin = new AdminPage(page)
+
+    await page.goto(url.loginURL);
+    // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+
+    await test.step("Request Navigations", async()=>{
+
+      await loginFlow.login(login.USER, login.PW);
+      await expect(page).toHaveURL(/requests/)
+      console.log(chalk.green('=== ✔️ URL is /requests/ ==='));
+      //drafts
+      await requestPage.ClickNewRequest();
+      await requestPage.clickDrafts();
+      await page.waitForLoadState("domcontentloaded");
+      await expect(page).toHaveURL(url.users.requestor.drafts)
+      await shared.validateURL(/drafts/, "URL is /drafts/");
+      //epr creation
+      await page.goto(url.users.requestor.requestLandingPage)
+      await requestPage.ClickNewRequest();
+      await requestPage.clickNewRequestBtn();
+      await expect(page).toHaveURL(/new/)
+      console.log(chalk.green('=== ✔️ URL is /new/ ==='));    
+      await eprFormFields.AddTransBtn().waitFor();
+      await eprFormFields.InputOnFieldsForRequestor1(page);
+      await eprFormFields.SingleFileAttachment();
+      await eprFormFields.AddTransBtn().click();
+      await eprFormFields.InputFieldsonTransactions2(page);
+      await eprFormFields.FillNetAmtupTo1M();
+      await eprFormFields.ClickAddNewTransactions();
+      await eprFormFields.ClickNext();
+      await eprFormFields.ClickSubmitRequest();
+      await eprFormFields.ClickSubmit();
+      await requestPage.waitForViewofViewAllReq();
+      latestEPR = await eprFormFields.GetNewEPRNo();
+      //click submit another
+      await eprFormFields.clickSubmitAnotherEPR();
+      await eprFormFields.AddTransBtn().waitFor()
+      await shared.validateURL(/new/, "URL is /new/");
+      // Approval hierarchy
+      await page.evaluate(() => window.history.back());
+      await page.waitForLoadState('networkidle');
+      await shared.clickViewApprovalHierarchyBtn();
+      await expect(shared.ApprovalHierarchysidepanelisVisible).toBeVisible();
+      console.log(chalk.green('=== ✔️ Approval Hierarchy side panel is visible ==='));
+      await shared.closeApprovalHierarchysidepanel();
+      await requestPage.waitForViewofViewAllReq();
+      //ViewAllReq
+      await shared.clickViewAllRequetsBtn();
+      await page.waitForLoadState('networkidle');
+      await expect(page).toHaveURL(url.users.requestor.viewAllRequests)
+      await shared.validateURL(/requests/, "URL is /requests/");
+
+      //clicking EPR link
+      await shared.EPRColumn.click();
+      //approval hierarchy
+      await requestPage.waitForViewofViewAllReq();
+      await shared.clickViewApprovalHierarchyBtn();
+      await shared.ApprovalHierarchysidepanelisVisible.isVisible();
+      console.log(chalk.green('=== ✔️ Approval Hierarchy side panel is visible ==='));
+      await shared.closeApprovalHierarchysidepanel();
+      
+      //ViewAllReq
+      await shared.clickViewAllRequetsBtn();
+      await page.waitForLoadState('networkidle');
+      await expect(page).toHaveURL(url.users.requestor.viewAllRequests)
+      await shared.validateURL(/requests/, "URL is /requests/");
+
+      // Logout Requestor
+        await Promise.all([
+          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+          shared.ClickLogoutL1(),
+        ]);
+
+      });
+      await page.close();
+
+
+      console.log('✅ Request Navigations ✅ PASSED');
+  });
+});

@@ -1,10 +1,15 @@
 import { Page, Locator, expect } from "@playwright/test";
 import details from '../data/inputFormData.json';
 
-    const today = new Date();
-    const day = today.getDate();
+    let today = new Date();
+    let day = today.getDate();
     console.log(day);
 
+  let formatted = today.toLocaleDateString('en-US', {
+    month: 'long',   // full month name
+    day: '2-digit',  // 09
+    year: 'numeric'  // 2026
+});
 export default class AdminPage{
     readonly page: Page;
     readonly Profile: Locator;
@@ -25,6 +30,9 @@ export default class AdminPage{
 
     readonly ViewApprovalHierarchy: Locator;
     readonly Hierarchy: Locator;
+
+    readonly Status: Locator;
+
 
 
     constructor (page: Page){
@@ -49,7 +57,14 @@ export default class AdminPage{
 
         this.Hierarchy = page.locator('div.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation0.css-76zbm4')
 
+        this.Status = page.locator('span.MuiChip-label.MuiChip-labelMedium.css-s01idy')
+
+        
+//page.getByText('Approver delegated successfully.', { exact: true })
+//page.locator(`//tr[td[contains(., 'Approver2 Tester')] and td[contains(., 'March 10, 2026')]]//div`)
     }
+
+
 
     delegationDate(day: number | string) {
     return this.page.getByRole('gridcell', { name: day.toString() });
@@ -61,8 +76,6 @@ export default class AdminPage{
     }
 
     async createDelegation(){
-        const today = new Date();
-        const day = today.getDate();
         console.log(day);
         await this.NewDelegationBtn.click();
         await this.ApprovalDelegationTitle.waitFor({state: "visible", timeout: 3000})
@@ -96,6 +109,11 @@ export default class AdminPage{
         await expect(combinedText).toContain('L1 Approver');
         await expect(combinedText).toContain('approver3');
         await expect(combinedText).toContain('Delegated Approver')
+    }
+
+    async validateDelegationStatus(){
+        const status = 'Active';
+        await this.Status.filter({hasText: new RegExp(`${formatted}.*${status}`)})
     }
 
 }

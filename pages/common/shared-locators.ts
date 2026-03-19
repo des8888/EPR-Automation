@@ -50,11 +50,14 @@ export default class SharedLocator{
     //Accounting Dashboard
     readonly AccountingDashboard: Locator;
 
-
-    //Actions column
-
     //TOASTNOTIFICATION
     readonly Toast:Locator;
+
+    //REQUESTS
+    readonly ViewAllRequests: Locator;
+    readonly ViewApprovalHierarchy: Locator;
+    readonly ApprovalHierarchysidepanel: Locator;
+    readonly ApprovalHierarchysidepanelCloseBtn: Locator;
 
     constructor(page: Page){
         this.page = page;
@@ -105,6 +108,12 @@ export default class SharedLocator{
         //TOASTNOTIFICATION
         this.Toast = page.getByRole('alert')
 
+        //Requests
+        this.ViewAllRequests = page.getByRole('button', { name: 'View All Requests' })
+        this.ViewApprovalHierarchy = page.getByRole('button', { name: 'View Approval Hierarchy' })
+        this.ApprovalHierarchysidepanel = page.getByText('Requestor')
+        this.ApprovalHierarchysidepanelCloseBtn = page.getByRole("button")
+
     }
 
     get DoneTabButton() {
@@ -112,6 +121,27 @@ export default class SharedLocator{
     }
     async waitForSelectMultiBtn(){
         await this.SelectMultiple.waitFor({state:'visible', timeout: 1000})
+    }
+
+    async clickViewAllRequetsBtn(){
+        await this.ViewAllRequests.waitFor({state:'visible', timeout: 10000})
+        await this.ViewAllRequests.click()
+    }
+
+    async clickViewApprovalHierarchyBtn(){
+        await this.ViewApprovalHierarchy.click()
+        await this.ApprovalHierarchysidepanel.waitFor({ state: 'visible' , timeout:1000});
+        const text = await this.ViewApprovalHierarchy.allTextContents();
+        console.log(chalk.blue(`APPROVAL HIERARCHY TEXTS: ${text}`))
+        
+    }
+
+    get ApprovalHierarchysidepanelisVisible(){
+        return this.ApprovalHierarchysidepanel
+    }
+    async closeApprovalHierarchysidepanel(){
+        this.ApprovalHierarchysidepanelCloseBtn.click()
+        console.log(chalk.blue('=== ✔️ Closed Approval Hierarchy side panel ==='));
     }
 
     async GetStatus(){
@@ -541,8 +571,10 @@ export default class SharedLocator{
 }
 
 
-
-
+    async validateURL(regex: RegExp, message: string) {
+        await expect(this.page).toHaveURL(regex);
+        console.log(chalk.green(`=== ✔️ ${message} ===`));
+    }
 
 
 }

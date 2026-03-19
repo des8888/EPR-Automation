@@ -2,7 +2,10 @@
   "loginURL": "https://expense.sandbox.seaoil.com.ph/auth",
   "users": {
     "requestor": {
-      "requestLandingPage": "https://expense.sandbox.seaoil.com.ph/requests"
+      "requestLandingPage": "https://expense.sandbox.seaoil.com.ph/requests",
+      "drafts":"https://expense.sandbox.seaoil.com.ph/request/drafts",
+      "editEPR":"https://expense.sandbox.seaoil.com.ph/request/edit/",
+      "viewAllRequests" : "https://expense.sandbox.seaoil.com.ph/requests?tab=pending-requests"
     },
     "approver": {
       "approvalsPage": "https://expense.sandbox.seaoil.com.ph/approvals",
@@ -12,7 +15,7 @@
       "accountingPage": "https://expense.sandbox.seaoil.com.ph/accounting?tab=pending-approvals"
     },
     "eprForm":{
-        "url":"https://expense.sandbox.seaoil.com.ph/request/new"
+        "newEPR":"https://expense.sandbox.seaoil.com.ph/request/new"
     }
   }
 }
