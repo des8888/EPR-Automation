@@ -6,6 +6,7 @@ export default class RequestPage {
     readonly RequestModule: Locator;
     readonly EPR: Locator;
     readonly NewRequestBtn: Locator;
+    readonly EPRDraftsTxt: Locator;
     readonly DraftsBtn: Locator;
     readonly ApproverName: Locator;
     readonly ApproverData: Locator;
@@ -26,6 +27,7 @@ export default class RequestPage {
         this.EPR = page.locator(`//button[@id='new-request-button']`)
         this.NewRequestBtn = page.getByText('New Request')
         this.DraftsBtn = page.getByText('Drafts')
+        this.EPRDraftsTxt = page.getByText('EPR Drafts', { exact: true });
         this.ApproverName = page.getByRole('combobox', { name: 'Select Approver' });
         this.ApproverData = page.getByRole('option', { name: data.ReqName });
         this.ApplyFilterBtn = page.getByRole('button', { name: 'Apply Filter' });
@@ -77,6 +79,9 @@ export default class RequestPage {
     }
     async waitForViewofViewAllReq() {
         await expect(this.ViewAllRequests).toBeVisible({ timeout: 180000 });
+    }
+    async clickEPRNoCol(){
+        await this.EPRNoColumn.click();
     }
 
     async ValidateEPRReturnPage() {

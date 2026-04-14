@@ -30,6 +30,11 @@
 "AP": "testuser+processor1@seaoil.com.ph",
 "APPW": "processor1P@ssw0rd",
 
+
+"DIST_DEPT_HEAD":"testuser+dist@seaoil.com.ph",
+"DIST_DEPT_HEAD_PW":"distP@ssw0rd",
+
+
 "GOOGLEUSER": "desiree_balderama@seaoil.com.ph",
 "GPASS": "Helloa__8"
 }

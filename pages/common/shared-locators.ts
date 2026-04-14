@@ -56,6 +56,7 @@ export default class SharedLocator{
     //REQUESTS
     readonly ViewAllRequests: Locator;
     readonly ViewApprovalHierarchy: Locator;
+    readonly ApprovalHierarchyDivs: Locator;
     readonly ApprovalHierarchysidepanel: Locator;
     readonly ApprovalHierarchysidepanelCloseBtn: Locator;
 
@@ -111,6 +112,7 @@ export default class SharedLocator{
         //Requests
         this.ViewAllRequests = page.getByRole('button', { name: 'View All Requests' })
         this.ViewApprovalHierarchy = page.getByRole('button', { name: 'View Approval Hierarchy' })
+        this.ApprovalHierarchyDivs = page.locator('div.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation0');
         this.ApprovalHierarchysidepanel = page.getByText('Requestor')
         this.ApprovalHierarchysidepanelCloseBtn = page.getByRole("button")
 
@@ -576,5 +578,22 @@ export default class SharedLocator{
         console.log(chalk.green(`=== ✔️ ${message} ===`));
     }
 
+    async GetVPApprovalHierarchyDetails(page: any){
+        //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
+        const container = await this.ApprovalHierarchyDivs.nth(1)
+        const texts = await container.locator('p').allTextContents();
+        // Option 2: Convert to structured object for nicer table
+        const tableData = [
+            {
+            Approver: texts[0] || '',
+            User: texts[1] || '',
+            Status: texts[3] || '',
+            Reason: texts[5] || ''
+            }
+        ];
+        await expect(texts[0]).toBe('VP - Charge Cost Center')
+        console.table(tableData);
+        await page.waitForTimeout(3000);
+    }
 
 }

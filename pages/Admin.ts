@@ -67,7 +67,8 @@ export default class AdminPage{
 
 
     delegationDate(day: number | string) {
-    return this.page.getByRole('gridcell', { name: day.toString() });
+    //return this.page.getByRole('gridcell', { name: day.toString() });
+    return this.page.locator(`:text-is("${day}")`);
     }
 
     async clickApprovalHierarchyBtn(){

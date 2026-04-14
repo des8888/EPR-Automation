@@ -46,7 +46,6 @@ export default class EPRFields{
     readonly Project: Locator;
     readonly ProjectData: Locator;
     readonly ChargeCostCenter: Locator;
-    readonly ChargeCostCenterData: Locator;
     readonly CapexOpexCogs: Locator;
     readonly CapexOpexCogsData: Locator;
     readonly NetAmnt: Locator;
@@ -103,12 +102,12 @@ export default class EPRFields{
         this.DueDate = page.getByRole('button', { name: 'Choose date', exact: true })
         this.DueSelectDate = page.getByRole('gridcell', { name: `${dets.DueDate}` })
         this.ModeofPayment = page.getByRole('textbox', { name: 'Select Mode of Payment' })
-        this.MoPList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t");
+        this.MoPList = page.getByText('Select an Option', { exact: true })
         const randomNum = Math.floor(Math.random() * 5) + 1;
         this.MopListData = page.getByRole('button').nth(randomNum)
 
         this.Category = page.getByRole('textbox', { name: 'Select a Category' })
-        this.CategoryList = page.locator(".MuiList-root.MuiList-padding.css-1bwj75t")
+        this.CategoryList = page.getByText('Select an Option', { exact: true })
 
         this.SubCat = page.getByRole('textbox', {name: 'Select a Sub Category'})
 
@@ -150,11 +149,10 @@ export default class EPRFields{
         this.ProductData = page.getByRole('option', { name: dets.Product })
         this.Project = page.getByRole('combobox', { name: 'Select Project' })
         this.ProjectData = page.getByRole('option', { name: dets.Project })
-        this.ChargeCostCenter =page.getByRole('combobox', { name: 'Select Cost Center' })
-        this.ChargeCostCenterData =page.getByRole('option', { name: dets.ChargeCostCenter })
+        this.ChargeCostCenter =page.getByRole('combobox', { name: 'Select Cost Center' });
         this.CapexOpexCogs = page.getByRole('combobox', { name: 'Select Expense Type' })
         this.CapexOpexCogsData = page.getByRole('option', { name: dets.Capex })
-        this.NetAmnt = page.locator("input[placeholder$='Enter Amount']")
+        this.NetAmnt = page.getByRole('textbox', { name: '0.00' })
         this.Vatable = page.locator("input[value='false'][name='vatable']")
         this.EWT = page.locator("input[value='false'][name='ewt']")
         this.sidepanelAddTrans = page.getByRole('button', { name: 'Add Transaction' })
@@ -436,14 +434,24 @@ export default class EPRFields{
         await this.Project.fill(dets.Project);
         await this.ProjectData.click()
         console.log(chalk.cyan('=== ✔️ SUCESS Input Project ==='));
-        await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
-        await this.ChargeCostCenterData.click();
-        console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center ==='));
+        // await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
+        // await this.ChargeCostCenterData.click();
         await this.CapexOpexCogs.fill(dets.Capex);
         await this.CapexOpexCogsData.click();
         console.log(chalk.cyan('=== ✔️ SUCESS CAPEX/OPEX/COGS Selection ==='));
         await this.Vatable.click();
         console.log(chalk.cyan('=== ✔️ SUCESS VATABLE Selection ==='));
+    }
+
+    async ChargeCostCenterforCrossDept(){
+        await this.ChargeCostCenter.fill(dets.CrossDeptChargeCostCenter)
+        await this.page.getByRole('option', { name: dets.CrossDeptChargeCostCenter }).click();
+        console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center Cross Dept ==='));
+    }
+    async ChargeCostCenterDefault(){
+        await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
+        await this.page.getByRole('option', { name: dets.ChargeCostCenter }).click();
+        console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center Deafult ==='));
     }
 
     async FillNetAmtBelow100k(){
@@ -536,7 +544,7 @@ export default class EPRFields{
             throw new Error("latestEPR is empty. Cannot locate row.");
         }
 
-        const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//td`).last();
+        const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//button`)
             // .locator('svg:visible')
             // .filter({ hasText: latestEPR });
 
@@ -648,9 +656,6 @@ export default class EPRFields{
             return nodes.map(el => el.textContent?.trim() || '');
         });
     }
-
-
-
         
     async ValidateAllfieldsifPresent() {
         // ---------- PREVIOUS FIELDS ----------
