@@ -1,4 +1,5 @@
 import { Page, Locator , expect, selectors} from "@playwright/test";
+import EPRFields from '../../pages/EPRformFields'
 import data from '../../data/filterData.json';
 import EPR from '../../data/eprData.json'
 import { count } from "console";
@@ -40,6 +41,9 @@ export default class SharedLocator{
     readonly AccLogout: Locator;
     readonly L1Logout: Locator;
     readonly YesLogout: Locator;
+
+
+    readonly CloseButtonX: Locator;
 
     //Approvals
     readonly DoneTab: Locator;
@@ -105,6 +109,8 @@ export default class SharedLocator{
         this.ApprovalsDashboard = page.getByText('Approvals')
         this.AccountingDashboard = page.getByText('Accounting')
         this.SelectMultiple = page.getByRole('button', { name: 'Select Multiple' })
+
+        this.CloseButtonX = page.locator("//button[@class='MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1i46say']//*[name()='svg']")
 
         //TOASTNOTIFICATION
         this.Toast = page.getByRole('alert')
@@ -578,6 +584,26 @@ export default class SharedLocator{
         console.log(chalk.green(`=== ✔️ ${message} ===`));
     }
 
+    async ValidateApprovalHierarchy(page: any){
+        //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
+        const container = await this.ApprovalHierarchyDivs.nth(4)
+        const texts = await container.locator('p').allTextContents();
+        // Option 2: Convert to structured object for nicer table
+        const tableData = [
+            {
+            Approver: texts[0] || '',
+            User: texts[1] || '',
+            Status: texts[3] || '',
+            Reason: texts[5] || ''
+            }
+        ];
+        console.table(tableData);
+        await expect(texts[3]).toBe('Pending Approval')
+        
+        await page.waitForTimeout(3000);
+        await this.CloseButtonX.click();
+    }
+
     async GetVPApprovalHierarchyDetails(page: any){
         //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
         const container = await this.ApprovalHierarchyDivs.nth(1)
@@ -595,5 +621,11 @@ export default class SharedLocator{
         console.table(tableData);
         await page.waitForTimeout(3000);
     }
-
+    async ValidateEPRDetailsEXCOMBanner(EPR: string){
+        const eprFields = new EPRFields(this.page);
+        
+        await this.UseSearch(EPR)
+        await this.EPRColumn.first().click();
+        await eprFields.ValidationofEXCOMBanner2();
+    }
 }

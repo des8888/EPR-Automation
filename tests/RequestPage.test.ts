@@ -32,7 +32,7 @@ test.afterAll(async ({}, testInfo) => {
 //
 // ─── REQUESTOR FLOW SUITE ─────────────────────────────────────────────────────
 //
-
+test.describe.configure({ mode: 'parallel' });
 test.describe('Requestor Flow', () => {
   
   test.beforeEach(async ({ page }, testInfo) => {
@@ -68,7 +68,7 @@ test.describe('Requestor Flow', () => {
   // ─── TEST CASE: CREATE NEW REQUEST ───────────────────────────────────────────
   //
 
-  test.skip('Create New Request, Default cost center', async ({ page }) => {
+  test.skip('Create New Request, Default cost center, Amount 1M', async ({ page }) => {
     let latestEPR = '';
 
     const requestPage = new RequestPage(page);
@@ -78,8 +78,8 @@ test.describe('Requestor Flow', () => {
 
     // Login
     await page.goto(url.loginURL);
-    //await loginFlow.login(login.USER, login.PW);
-    await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+    await loginFlow.login(login.USER, login.PW);
+    //await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
     await page.waitForLoadState('domcontentloaded');
 
     // Navigate to Request Landing Page
@@ -102,9 +102,14 @@ test.describe('Requestor Flow', () => {
     await eprForm.InputFieldsonTransactions2(page);
     await eprForm.ChargeCostCenterDefault()
     await eprForm.FillNetAmtupTo1M();
-
+    await eprForm.ClickEWT();
+    await eprForm.ValidationofEXCOMBanner1();
     await eprForm.ClickAddNewTransactions();
+    //await eprForm.clickUSD();
+    
+    
     await eprForm.ClickNext();
+    await eprForm.ValidationofEXCOMBanner1();
     await eprForm.ClickSubmitRequest();
     await eprForm.ClickSubmit();
 
@@ -113,18 +118,18 @@ test.describe('Requestor Flow', () => {
 
     // Get newly created EPR number
     latestEPR = await eprForm.GetNewEPRNo();
-
+    await eprForm.ValidationofEXCOMBanner1();
     // Navigate to View All Requests and search
     await requestPage.ClickViewAllReq();
-    await shared.UseSearch(latestEPR);
-
+    //await shared.UseSearch(latestEPR);
+    await shared.ValidateEPRDetailsEXCOMBanner(latestEPR);
     await page.close()
 
 
     console.log(chalk.green(`\n✅ Successfully created and validated EPR: ${latestEPR}`));
 });
 
-  test.only('Create New Request, Default cost center, More than 1M', async ({ page }) => {
+  test.skip('Create New Request, Default cost center, Amount 1M, USD currency', async ({ page }) => {
     let latestEPR = '';
 
     const requestPage = new RequestPage(page);
@@ -135,6 +140,127 @@ test.describe('Requestor Flow', () => {
     // Login
     await page.goto(url.loginURL);
     await loginFlow.login(login.USER, login.PW);
+    //await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+    await page.waitForLoadState('domcontentloaded');
+
+    // Navigate to Request Landing Page
+    await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
+
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
+
+    await requestPage.ClickNewRequest();
+    await requestPage.clickNewRequestBtn();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.SingleFileAttachment();
+    await eprForm.clickUSD();
+    await eprForm.AddTransBtn().click();
+
+    await eprForm.InputFieldsonTransactions2(page);
+    await eprForm.ChargeCostCenterDefault()
+    await eprForm.FillNetAmtBelow100k();
+    await eprForm.ClickEWT();
+    await eprForm.ValidationofEXCOMBanner1();
+    await eprForm.ClickAddNewTransactions();
+    
+    await eprForm.ClickNext();
+    await eprForm.ValidationofEXCOMBanner1();
+    await eprForm.ClickSubmitRequest();
+    await eprForm.ClickSubmit();
+
+    // Wait for confirmation page
+    await requestPage.waitForViewofViewAllReq();
+
+    // Get newly created EPR number
+    latestEPR = await eprForm.GetNewEPRNo();
+    await eprForm.ValidationofEXCOMBanner1();
+    // Navigate to View All Requests and search
+    await requestPage.ClickViewAllReq();
+    //await shared.UseSearch(latestEPR);
+    await shared.ValidateEPRDetailsEXCOMBanner(latestEPR);
+    await page.close()
+
+
+    console.log(chalk.green(`\n✅ Successfully created and validated EPR: ${latestEPR}`));
+});
+
+  test.skip('Create New Request, Default cost center, Amount 1M, SGD currency', async ({ page }) => {
+    let latestEPR = '';
+
+    const requestPage = new RequestPage(page);
+    const eprForm = new eprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.USER, login.PW);
+    //await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+    await page.waitForLoadState('domcontentloaded');
+
+    // Navigate to Request Landing Page
+    await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
+
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
+
+    await requestPage.ClickNewRequest();
+    await requestPage.clickNewRequestBtn();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.SingleFileAttachment();
+    await eprForm.clickSGD();
+    await eprForm.AddTransBtn().click();
+
+    await eprForm.InputFieldsonTransactions2(page);
+    await eprForm.ChargeCostCenterDefault()
+    await eprForm.FillNetAmtBelow100k();
+    await eprForm.ClickEWT();
+    await eprForm.ValidationofEXCOMBanner1();
+    await eprForm.ClickAddNewTransactions();
+    
+    await eprForm.ClickNext();
+    await eprForm.ValidationofEXCOMBanner1();
+    await eprForm.ClickSubmitRequest();
+    await eprForm.ClickSubmit();
+
+    // Wait for confirmation page
+    await requestPage.waitForViewofViewAllReq();
+
+    // Get newly created EPR number
+    latestEPR = await eprForm.GetNewEPRNo();
+    await eprForm.ValidationofEXCOMBanner1();
+    // Navigate to View All Requests and search
+    await requestPage.ClickViewAllReq();
+    //await shared.UseSearch(latestEPR);
+    await shared.ValidateEPRDetailsEXCOMBanner(latestEPR);
+    await page.close()
+
+
+    console.log(chalk.green(`\n✅ Successfully created and validated EPR: ${latestEPR}`));
+});
+
+  test.skip('Create New Request, Default cost center, More then 1M', async ({ page }) => {
+    let latestEPR = '';
+
+    const requestPage = new RequestPage(page);
+    const eprForm = new eprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
+
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.USER, login.PW);
+    //await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
     await page.waitForLoadState('domcontentloaded');
 
     // Navigate to Request Landing Page
@@ -157,9 +283,14 @@ test.describe('Requestor Flow', () => {
     await eprForm.InputFieldsonTransactions2(page);
     await eprForm.ChargeCostCenterDefault()
     await eprForm.FillNetMorethan1M();
-
+    await eprForm.ClickEWT();
+    await eprForm.ValidationofEXCOMBanner1();
     await eprForm.ClickAddNewTransactions();
+    await eprForm.clickUSD();
+    
+    
     await eprForm.ClickNext();
+    await eprForm.ValidationofEXCOMBanner1();
     await eprForm.ClickSubmitRequest();
     await eprForm.ClickSubmit();
 
@@ -168,11 +299,11 @@ test.describe('Requestor Flow', () => {
 
     // Get newly created EPR number
     latestEPR = await eprForm.GetNewEPRNo();
-
+    await eprForm.ValidationofEXCOMBanner1();
     // Navigate to View All Requests and search
     await requestPage.ClickViewAllReq();
-    await shared.UseSearch(latestEPR);
-
+    //await shared.UseSearch(latestEPR);
+    await shared.ValidateEPRDetailsEXCOMBanner(latestEPR);
     await page.close()
 
 
@@ -373,38 +504,62 @@ test.describe('Requestor Flow', () => {
 //     console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
 // });
 
-// test("Create New Request 10 times", async ({ page }) => {
-//   const shared = new SharedLocator(page);
-//   let requestNumber: string;
-//   for (let i = 1; i <= 10; i++) {
-//     console.log(`▶ Creating request #${i}`);
+test.only("Create New Request 10 times", async ({ page }) => {
+  const shared = new SharedLocator(page);
+  let requestNumber: string;
+  for (let i = 1; i <= 10; i++) {
+    console.log(`▶ Creating request #${i}`);
 
-//     const requestPage = new RequestPage(page);
-//     const eprFormFields = new eprFields(page);
+    const requestPage = new RequestPage(page);
+    const eprForm = new eprFields(page);
+    const shared = new SharedLocator(page);
+    const loginFlow = new Login(page);
 
-//     // Navigate to landing page (session will persist from user-data-dir)
-//     await page.goto(reqLandingPage);
+    // Login
+    await page.goto(url.loginURL);
+    await loginFlow.login(login.USER, login.PW);
+    await page.waitForLoadState('domcontentloaded');
 
-//     // Perform actions
-//     await requestPage.ClickNewRequest();
-//       await eprFormFields.AddTransBtn().waitFor();
-//       await eprFormFields.InputOnFields(page);
-//       await eprFormFields.AddTransBtn().click();
-//       await eprFormFields.InputFieldsonTransactions2(page);
-//       await eprFormFields.FillNetAmtBelow100k();
-//       await eprFormFields.ClickAddNewTransactions();
-//       await eprFormFields.ClickNext();
-//       await eprFormFields.ClickSubmitRequest();
-//       await eprFormFields.ClickSubmit();
-//       await requestPage.waitForViewofViewAllReq();
-//       await page.waitForTimeout(5000);
-//       requestNumber = await eprFormFields.GetNewEPRNo();
-//       await requestPage.ClickViewAllReq();
-//       await shared.UseSearch(requestNumber);
+    // Navigate to Request Landing Page
+    await page.goto(reqLandingPage);
+    await page.waitForURL('**/requests');
 
-//     console.log(`✅ Request #${i} creation ✅ PASSED`);
-//   }
-// });
+    //
+    // ─── CREATE REQUEST FLOW ────────────────────────────────────────────────
+    //
+
+    await requestPage.ClickNewRequest();
+    await requestPage.clickNewRequestBtn();
+
+    await eprForm.AddTransBtn().waitFor();
+
+    await eprForm.InputOnFieldsForRequestor1(page);
+    await eprForm.SingleFileAttachment();
+    await eprForm.AddTransBtn().click();
+
+    await eprForm.InputFieldsonTransactions2(page);
+    await eprForm.ChargeCostCenterforCrossDept();
+    await eprForm.FillNetAmtupTo1M();
+
+    await eprForm.ClickAddNewTransactions();
+    await eprForm.ClickNext();
+    await eprForm.ClickSubmitRequest();
+    await eprForm.ClickSubmit();
+
+    // Wait for confirmation page
+    await requestPage.waitForViewofViewAllReq();
+
+    // Get newly created EPR number
+    requestNumber = await eprForm.GetNewEPRNo();
+
+    // Navigate to View All Requests and search
+    await requestPage.ClickViewAllReq();
+    await shared.UseSearch(requestNumber);
+
+
+    console.log(`✅ Request #${i} creation ✅ PASSED`);
+  }
+});
 
 // test("Validating Category Filter", async({page})=>{
 //   const sharedLoc = new SharedLocator(page);

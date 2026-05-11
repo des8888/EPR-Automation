@@ -18,6 +18,11 @@
     "product":"Please select a Product",
     "project":"Please select a Project",
     "chargeCost":"Please select a Charge Cost Center",
+    "justification":"Justification must not exceed 500 characters",
     "capex/opex/cogs":"Please select an Expense Type",
-    "netAmount":"Please enter a valid amount"
+    "netAmount":"Please enter a valid amount",
+
+    "EXCOM2":"The total amount of this request exceeds ₱1,000,000. EXCOM approval must be attached.",
+    "EXCOM1":"This request requires EXCOM approval.",
+    "CHARGECOSTBANNER":"You’re selecting a cost center outside your department. Please provide a justification to proceed."
 }

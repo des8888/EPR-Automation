@@ -28,6 +28,7 @@ export default class FieldErrors{
     readonly Product: Locator;
     readonly Project: Locator;
     readonly ChargeCostCenter: Locator;
+    readonly Justification: Locator;
     readonly CapexOpexCogs: Locator;
     readonly NetAmnt: Locator;
     readonly NetAmntInputField: Locator;
@@ -62,6 +63,7 @@ export default class FieldErrors{
         this.Product = page.getByText('Please select a Product')
         this.Project = page.getByText('Please select a Project')
         this.ChargeCostCenter = page.getByText('Please select a Charge Cost')
+        this.Justification = page.locator('p:has-text("Justification must not exceed 500 characters")')
         this.CapexOpexCogs = page.getByText('Please select an Expense Type')
         this.NetAmntInputField = page.getByRole('textbox', { name: 'Enter Amount' })
         this.NetAmnt = page.getByText('Please enter a valid amount')

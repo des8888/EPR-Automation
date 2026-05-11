@@ -1,7 +1,10 @@
 import { Locator, Page, expect} from "@playwright/test";
 import dets from '../data/inputFormData.json';
+import message from '../data/errorMessages.json';
+import FieldErrors from "./fieldErrors";
 import { saveEPRToFile } from "../utils/fileUtils";
 import EPR from "../data/eprData.json";
+import { TIMEOUT } from "dns";
 const chalk = require('chalk');
 
 export default class EPRFields{
@@ -46,9 +49,13 @@ export default class EPRFields{
     readonly Project: Locator;
     readonly ProjectData: Locator;
     readonly ChargeCostCenter: Locator;
+    readonly Justification: Locator;
+    readonly ChargeCostBanner: Locator;
     readonly CapexOpexCogs: Locator;
     readonly CapexOpexCogsData: Locator;
     readonly NetAmnt: Locator;
+    readonly EXCOMBanner1: Locator;
+    readonly EXCOMBanner2: Locator;
     readonly Vatable: Locator;
     readonly EWT: Locator;
     readonly sidepanelAddTrans: Locator;
@@ -58,10 +65,19 @@ export default class EPRFields{
     readonly AmountCol: Locator;
     readonly TotalAmount: Locator;
 
+    //CURRENCY*********************************
+    readonly Currency: Locator;
+    readonly PHP: Locator;
+    readonly USD: Locator;
+    readonly SGD: Locator;
+    readonly ChangeCurrencyBtn: Locator;
+
     //Actions column on Trans table
     readonly ActionsCol: Locator;
     readonly AccActionsCol: Locator;
+    readonly ActionViewRequest: Locator;
     readonly ActionApprove: Locator;
+    readonly ConfirmationProceedBtn: Locator;
     readonly ActionReject: Locator;
     readonly ActionReturn: Locator;
     readonly ActionAcknowledge: Locator;
@@ -150,18 +166,34 @@ export default class EPRFields{
         this.Project = page.getByRole('combobox', { name: 'Select Project' })
         this.ProjectData = page.getByRole('option', { name: dets.Project })
         this.ChargeCostCenter =page.getByRole('combobox', { name: 'Select Cost Center' });
+        this.Justification = page.getByRole('textbox', { name: 'Enter Justification' })
+        this.ChargeCostBanner = page.getByText('You’re selecting a cost center outside your department. Please provide a justification to proceed.', { exact: true })
         this.CapexOpexCogs = page.getByRole('combobox', { name: 'Select Expense Type' })
         this.CapexOpexCogsData = page.getByRole('option', { name: dets.Capex })
-        this.NetAmnt = page.getByRole('textbox', { name: '0.00' })
+        this.NetAmnt = page.getByRole('textbox', { name: '0.00' });
+        this.EXCOMBanner1 = page.locator('p:has-text("This request requires EXCOM approval.")')
+        this.EXCOMBanner2 = page.locator('p:has-text("The total amount of this request exceeds ₱1,000,000. EXCOM approval must be attached.")')
         this.Vatable = page.locator("input[value='false'][name='vatable']")
         this.EWT = page.locator("input[value='false'][name='ewt']")
         this.sidepanelAddTrans = page.getByRole('button', { name: 'Add Transaction' })
-        this.AmountCol = page.locator('//tbody/tr/td[8]')
-        this.TotalAmount = page.locator(`//div[@class='MuiTypography-root MuiTypography-h6 css-r3iov6']`)
+        this.AmountCol = page.locator('//tbody/tr/td[9]')
+        this.TotalAmount = page.locator("//div[@class='MuiTypography-root MuiTypography-h6 css-r3iov6']")
         //Actions column on trans table
         //this.ActionsCol = page.locator("//tbody/td[9]");
+
+
+        //CURRENCY*************************
+        this.Currency = page.getByRole('button', { name: 'PHP' })
+        this.PHP = page.locator("//span[normalize-space()='PHP']")
+        this.USD = page.getByText('USD');
+        this.SGD = page.getByText('SGD');
+        this.ChangeCurrencyBtn = page.getByRole('button', { name: 'Change Currency' })
+
+
+        //ACTIONSCOL*************************
         this.ActionsCol = page.getByRole('row').getByRole('button')
         this.AccActionsCol = page.getByRole('row').getByRole('button')
+        this.ActionViewRequest = page.getByRole('menuitem', { name: 'View Request' })
         this.ActionApprove = page.getByRole('menuitem', { name: 'Approve' })
         this.ActionReject = page.getByRole('menuitem', { name: 'Reject' })
         this.ActionReturn = page.getByRole('menuitem', { name: 'Return' })
@@ -169,6 +201,7 @@ export default class EPRFields{
         this.sidepanelCloseButton = page.getByRole('button').first();
 
         this.ApproveReq = page.getByRole('button', { name: 'Approve' })
+        this.ConfirmationProceedBtn = page.getByRole('button', { name: 'Proceed' })
         this.ApproveField = page.getByRole('textbox', { name: 'Enter a Note (Optional)' })
         this.RejectReq = page.getByRole('button', { name: 'Reject' })
         this.RejectField = page.getByRole('textbox', { name: 'Enter Reason (Optional)' })
@@ -205,6 +238,36 @@ export default class EPRFields{
 
     async clickSubmitAnotherEPR(){
         this.SubmitAnotherEPRBtn.click();
+    }
+
+    async clickUSD(){
+        await this.Currency.click();
+        await this.USD.click()
+        await this.ChangeCurrencyBtn.click()
+    }
+
+    async clickSGD(){
+        await this.Currency.click();
+        await this.SGD.click()
+        await this.ChangeCurrencyBtn.click()
+    }
+
+    async ClickAddNewTransactions(){
+         await this.sidepanelAddTrans.click();
+    }
+    async ClickNext(){
+       await this.Next.click();
+    }
+    async ClickSubmitRequest(){
+        await this.SubmitReq.click();
+    }
+    async ClickSubmit(){
+        await this.SubmitBtn.click();
+        console.log(chalk.yellow(`=== Creating EPR ... ===`))
+    }
+
+    async ClickEWT(){
+        await this.EWT.click()
     }
 
     async InputOnFields(){
@@ -411,6 +474,17 @@ export default class EPRFields{
     //     await this.Vatable.click();
        
     // }
+
+
+    async AddJustification(){
+        const errorMessage = new FieldErrors(this.page);
+        await this.Justification.fill(dets.Justification501)
+
+        await expect(errorMessage.Justification).toHaveText(message.justification)
+        await this.Justification.clear();
+        await this.Justification.fill(dets.Justification);
+    }
+
     getCategoryDropdown() {
     return this.Category;
     }
@@ -453,6 +527,11 @@ export default class EPRFields{
         await this.page.getByRole('option', { name: dets.ChargeCostCenter }).click();
         console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center Deafult ==='));
     }
+    async ChargeCostCenterforPROC(){
+        await this.ChargeCostCenter.fill(dets.ChargeCostPROC)
+        await this.page.getByRole('option', { name: dets.ChargeCostPROC }).click();
+        console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center for PROC ==='));
+    }
 
     async FillNetAmtBelow100k(){
         await this.NetAmnt.fill(dets.NetAmnt);
@@ -488,19 +567,7 @@ export default class EPRFields{
             console.log(chalk.green('=== ✔️ SUCESS Multiple File Attach ==='));
     }
     
-    async ClickAddNewTransactions(){
-         await this.sidepanelAddTrans.click();
-    }
-    async ClickNext(){
-       await this.Next.click();
-    }
-    async ClickSubmitRequest(){
-        await this.SubmitReq.click();
-    }
-    async ClickSubmit(){
-        await this.SubmitBtn.click();
-        console.log(chalk.yellow(`=== Creating EPR ... ===`))
-    }
+
 
     
     async GetNewEPRNo(): Promise<string> {
@@ -540,34 +607,24 @@ export default class EPRFields{
     }
     async ClickActionCol(latestEPR: string) {
 
-        if (!latestEPR || latestEPR.trim() === "") {
-            throw new Error("latestEPR is empty. Cannot locate row.");
-        }
-
+       
         const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//button`)
-            // .locator('svg:visible')
-            // .filter({ hasText: latestEPR });
-
-        const targetRow = row.first();
-
-        await targetRow.waitFor({ state: "visible", timeout: 60000 });
-
-        const actionButton = targetRow.getByRole('button');
-
-        await actionButton.first().click();
+        
+        const maxRetries = 5;
+        for(let attempt = 1; attempt <= maxRetries; attempt++){
+            console.log(`Attempt ${attempt} opening action menu...`);
+            await row.click();
+            try{
+                await expect(this.ActionViewRequest).toBeVisible({timeout: 2000})
+                console.log(chalk.green("Action menu displayed"));
+                return;
+            } catch{
+                console.log(chalk.yellow("Menu not visible yet"))
+            }
+        }
+        throw new Error("Failed to open action menu");
 
         console.log(chalk.green(`Clicked Action button for EPR: ${latestEPR}`));
-    }
-
-    async ClickActionsColAccounting(latestEPR:string){
-        const row = this.page.getByRole('row',{name: latestEPR});
-        await row.waitFor({state:'visible', timeout:6000})
-
-
-        const actionButton = row.getByRole('button');
-        await actionButton.click();
-
-        console.log(chalk.green(`Clicked Action button Accounting for EPR: ${latestEPR}`));
     }
     async ApproveARequest(){
         await this.ActionApprove.click()
@@ -582,6 +639,15 @@ export default class EPRFields{
         await this.ApproveReq.click();
         await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
         console.log(chalk.green(`Approved Request Successfully with Note`))
+    }
+
+    async ApproveConfirmationVPofDifferentChargeCost(){
+        await this.ActionApprove.click()
+        await this.ConfirmationProceedBtn.click()
+        await this.ApproveField.fill(dets.ApproveMess);
+        await this.ApproveReq.click();
+        await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
+        console.log(chalk.green(`Approved Request Successfully`))
     }
     
     async RejectARequest(){
@@ -624,22 +690,35 @@ export default class EPRFields{
         const count = await this.AmountCol.count();
         console.log(`ETOOOOOOOOOOOOOOO: ${count}`);
 
-        for (let i = 0; i < count; i++) {
-            const text = await this.AmountCol.nth(i).innerText();
-            // Clean any extra spaces and symbols like ₱ or $
-            const value = text.replace(/[^\d.,-]/g, ""); // keep only numbers, comma, dot, minus
-            const numericValue = parseFloat(value.replace(/,/g, ""));
-            total += numericValue;
-            console.log(`Running total: ${total}`);
-        }
+            for (let i = 0; i < count; i++) {
+                const text = await this.AmountCol.nth(i).innerText();
+
+                //console.log(`RAW TEXT [${i}]: "${text}"`);
+
+                const value = text.replace(/[^\d.,-]/g, "").trim();
+
+                //console.log(`CLEAN VALUE [${i}]: "${value}"`);
+
+                const numericValue = parseFloat(value.replace(/,/g, ""));
+
+                //console.log(`PARSED VALUE [${i}]: ${numericValue}`);
+
+                total += numericValue;
+
+                //console.log(`Running total: ${total}`);
+            }
 
         const totalOverallText = await this.TotalAmount.innerText();
-        console.log(`TOTAL OVERALL RAW TEXT: "${totalOverallText}"`);
+        //console.log(`TOTAL OVERALL RAW TEXT: "${totalOverallText}"`);
 
+
+        //console.log(`RAW totalOverallText: "${totalOverallText}"`);
+        
         // Clean it up the same way
         const overallValue = totalOverallText.replace(/[^\d.,-]/g, "");
+        //console.log(`CLEANED overallValue: "${overallValue}"`);
         const TOTAL = parseFloat(overallValue.replace(/,/g, ""));
-        console.log(`TOTAL comparison → computed: ${total}, displayed: ${TOTAL}`);
+        //console.log(`TOTAL comparison → computed: ${total}, displayed: ${TOTAL}`);
         await expect(TOTAL).toBe(total);
     }
 
@@ -750,6 +829,20 @@ export default class EPRFields{
                 await this.CategoryList.first().waitFor({ state: 'visible' });
             }
         }
+    }
+
+    async ValidationofEXCOMBanner1() {
+        await expect(this.EXCOMBanner1).toHaveText(message.EXCOM1);
+        console.log(chalk.green('=== ✔️ SUCESS Validation of EXCOM Banner 1 ==='));
+    }
+    async ValidationofEXCOMBanner2() {
+        await expect(this.EXCOMBanner2).toHaveText(message.EXCOM2)
+        console.log(chalk.green('=== ✔️ SUCESS Validation of EXCOM Banner 2 ==='));
+    }
+    async ValidateDIfferentChargeCostBanner(){
+        await expect(this.ChargeCostBanner).toHaveText(message.CHARGECOSTBANNER);
+        console.log(chalk.green('=== ✔️ SUCESS Validation of different CHARGECOST Banner ==='));
+
     }
 
 

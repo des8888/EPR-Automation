@@ -11,7 +11,7 @@ import login from '../data/login.json';
 import AdminPage from '../pages/Admin';
 import { afterEach } from 'node:test';
 import { link } from 'fs';
-import { log } from 'console';
+import { clear, log } from 'console';
 
 
 test.beforeAll(async ()=>{
@@ -59,13 +59,13 @@ test.describe('E2E Flow', () => {
     }
   })
 //********************************************************************************** */
-  test.skip('Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test.skip('From create request up to MANCOM (amounting to 1M)', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
-
+    let TC1EPRNo = " " 
     await page.goto(url.loginURL);
     //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await loginFlow.login(login.USER, login.PW);
@@ -93,9 +93,9 @@ test.describe('E2E Flow', () => {
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC1EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC1EPRNo);
 
 
       // Logout Requestor
@@ -111,20 +111,20 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       //await loginFlow.login(login.VP, login.VPPW);
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       })
@@ -135,13 +135,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
-      await eprFormFields.ApproveARequestwithNote();
+      await shared.UseSearch(TC1EPRNo);
+      await eprFormFields.ClickActionCol(TC1EPRNo);
+      await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC1EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -154,13 +154,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       })
@@ -171,13 +171,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
-      await eprFormFields.ApproveARequestwithNote();
+      await shared.UseSearch(TC1EPRNo);
+      await eprFormFields.ClickActionCol(TC1EPRNo);
+      await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC1EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -189,7 +189,7 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.ClickLogout();
 
       })
@@ -199,13 +199,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
-      await eprFormFields.ApproveARequestwithNote();
+      await shared.UseSearch(TC1EPRNo);
+      await eprFormFields.ClickActionCol(TC1EPRNo);
+      await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC1EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -219,13 +219,13 @@ test.describe('E2E Flow', () => {
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR)//);
-      await eprFormFields.ClickActionsColAccounting(latestEPR);
+      await shared.UseSearch(TC1EPRNo)//);
+      await eprFormFields.ClickActionCol(TC1EPRNo);
       await eprFormFields.AcknowledgeARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC1EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR)
+      await shared.UseSearch(TC1EPRNo)
       await shared.AccGetStatus();
 
       await page.close()
@@ -235,12 +235,14 @@ test.describe('E2E Flow', () => {
 
 });
 //********************************************************************************** */
-  test.skip('Request to Approval up to Department Manager (up to 100k)', async ({ page }) => {
+  test.skip('From create request up to Accounting (up to 100k)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
       const shared = new SharedLocator(page);
       const loginFlow = new Login(page);
+
+      let TC2EPRNo = " "
 
     await page.goto(url.loginURL);
     // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
@@ -258,11 +260,12 @@ test.describe('E2E Flow', () => {
         await requestPage.ClickNewRequest();
         await requestPage.clickNewRequestBtn();
         await eprFormFields.AddTransBtn().waitFor();
-        await eprFormFields.InputOnFields(page);
+        await eprFormFields.InputOnFieldsForRequestor1(page);
         await eprFormFields.SingleFileAttachment();
         for (let i = 1; i <= 3; i++) {
         await eprFormFields.AddTransBtn().click();
         await eprFormFields.InputFieldsonTransactions2(page);
+        await eprFormFields.ChargeCostCenterDefault();
         await eprFormFields.FillNetAmtBelow100k();
         await eprFormFields.ClickAddNewTransactions();
         }
@@ -294,9 +297,9 @@ test.describe('E2E Flow', () => {
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC2EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC2EPRNo);
 
 
       // Logout Requestor
@@ -307,34 +310,28 @@ test.describe('E2E Flow', () => {
 
       });
 
-      await test.step("Check EPR on other non Approver accounts", async () => {
-        // L2 Login check
-        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage1 = await shared.NoDataMessage.innerText();
-        await expect(noMessage1).toBe(data.NoDataMessage);
-        await shared.ClickLogout();
+    //   await test.step("Check EPR on other non Approver accounts", async()=>{
+    //   await loginFlow.login(login.AVP, login.AVPPW);
+    //   await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+    //   await shared.ClickApprovals();
+    //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+    //   await shared.ValidateUseSearchforNoData(TC2EPRNo);
+    //   await shared.ClickLogout();
 
-        // L3 Login check
-        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage2 = await shared.NoDataMessage.innerText();
-        await expect(noMessage2).toBe(data.NoDataMessage);
-await shared.ClickLogout();
+    //   await loginFlow.login(login.VP, login.VPPW);
+    //   await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+    //   await shared.ClickApprovals();
+    //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+    //   await shared.ValidateUseSearchforNoData(TC2EPRNo);
+    //   await shared.ClickLogout();
 
-        // Accounting check
-        await loginFlow.login(login.AP, login.APPW);
-        await shared.clickAccounting();
-        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage3 = await shared.NoDataMessage.innerText();
-        await expect(noMessage3).toBe(data.NoDataMessage);
-await shared.ClickLogout();
-      });
+    //   await loginFlow.login(login.AP, login.APPW);
+    //   await shared.clickAccounting();
+    //   await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+    //   await shared.ValidateUseSearchforNoData(TC2EPRNo);
+    //   await shared.ClickLogout();
+
+    //   })
 
 
       await test.step("Approved by Approver L1", async()=>{
@@ -342,13 +339,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC2EPRNo);
+      await eprFormFields.ClickActionCol(TC2EPRNo);
       await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC2EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC2EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -356,30 +353,30 @@ await shared.ClickLogout();
 
       })
 
-      await test.step("Check EPR on other non Approver accounts", async()=>{
-        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      //await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC2EPRNo);
+      //   await shared.ClickLogout();
 
-        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      //   await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC2EPRNo);
+      //   await shared.ClickLogout();
 
-      })
+      //})
 
       await test.step("Approved by Accounting", async()=>{
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR)//);
-      await eprFormFields.ClickActionsColAccounting(latestEPR);
+      await shared.UseSearch(TC2EPRNo)//);
+      await eprFormFields.ClickActionCol(TC2EPRNo);
       await eprFormFields.AcknowledgeARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC2EPRNo);
       await shared.DoneTabButton.click()
       await shared.UseSearchAccounting();
       await shared.AccGetStatus();
@@ -387,17 +384,19 @@ await shared.ClickLogout();
           page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
           shared.ClickLogout(),
         ]);
+        await page.close();
       })
       console.log('✅ Request to Approval up to Department Manager (up to 100k) ✅ PASSED');
   });
 //********************************************************************************** */
-  test.skip('Request to Approval up to AsstVP (up to 500k)', async ({ page }) => {
+  test.skip('From create request up to AsstVP (up to 500k)', async ({ page }) => {
 
   const requestPage = new RequestPage(page);
   const eprFormFields = new EprFields(page);
   const shared = new SharedLocator(page);
   const loginFlow = new Login(page);
 
+  let TC3EPRNo = " "
     await page.goto(url.loginURL);
     // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await loginFlow.login(login.USER, login.PW);
@@ -427,9 +426,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC3EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC3EPRNo);
 
 
       // Logout Requestor
@@ -448,16 +447,16 @@ await shared.ClickLogout();
     await shared.ClickApprovals();
 
     await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC3EPRNo);
 
-    await eprFormFields.ClickActionCol(latestEPR);
+    await eprFormFields.ClickActionCol(TC3EPRNo);
     await eprFormFields.ApproveARequest();
 
     await shared.ToastNotificationMessage();
-    await shared.ValidateUseSearchforNoData(latestEPR);
+    await shared.ValidateUseSearchforNoData(TC3EPRNo);
 
     await shared.DoneTabButton.click();
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC3EPRNo);
     await shared.GetStatus();
 
     await Promise.all([
@@ -473,16 +472,16 @@ await shared.ClickLogout();
     await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
     await shared.ClickApprovals();
     await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC3EPRNo);
 
-    await eprFormFields.ClickActionCol(latestEPR);
+    await eprFormFields.ClickActionCol(TC3EPRNo);
     await eprFormFields.ApproveARequest();
 
     await shared.ToastNotificationMessage();
-    await shared.ValidateUseSearchforNoData(latestEPR);
+    await shared.ValidateUseSearchforNoData(TC3EPRNo);
 
     await shared.DoneTabButton.click();
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC3EPRNo);
     await shared.GetStatus();
 
     await shared.ClickLogout();
@@ -495,13 +494,13 @@ await shared.ClickLogout();
     await loginFlow.login(login.AP, login.APPW);
     await shared.clickAccounting();
     await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC3EPRNo);
 
-    await eprFormFields.ClickActionsColAccounting(latestEPR);
+    await eprFormFields.ClickActionCol(TC3EPRNo);
     await eprFormFields.AcknowledgeARequest();
 
     await shared.ToastNotificationMessage();
-    await shared.ValidateUseSearchforNoData(latestEPR);
+    await shared.ValidateUseSearchforNoData(TC3EPRNo);
 
     await shared.DoneTabButton.click();
     await shared.UseSearchAccounting();
@@ -519,12 +518,14 @@ await shared.ClickLogout();
 
 
 //********************************************************************************** */
-  test.skip('Request to Approval for PROC team (up to 1M)', async ({ page }) => {
+  test.skip('From create request to Accounting Approval for PROC team (up to 1M)', async ({ page }) => {
 
   const requestPage = new RequestPage(page);
   const eprFormFields = new EprFields(page);
   const shared = new SharedLocator(page);
   const loginFlow = new Login(page);
+
+  let TC4EPRNo = " ";
 
     await page.goto(url.loginURL);
     await loginFlow.login(login.ASST, login.ASSTPW);
@@ -545,7 +546,7 @@ await shared.ClickLogout();
       await eprFormFields.SingleFileAttachment();
       await eprFormFields.AddTransBtn().click();
       await eprFormFields.InputFieldsonTransactions2(page);
-      await eprFormFields.ChargeCostCenterDefault();
+      await eprFormFields.ChargeCostCenterforPROC();
       await eprFormFields.FillNetAmtupTo1M();
       await eprFormFields.ClickAddNewTransactions();
       await eprFormFields.ClickNext();
@@ -553,9 +554,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC4EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC4EPRNo);
 
 
       // Logout Requestor
@@ -567,34 +568,34 @@ await shared.ClickLogout();
   // ───────────────────────────────────────────────
   // STEP 1: Check on different account if EPR is existing
   // ───────────────────────────────────────────────
- await test.step("Check EPR on other non Approver accounts", async () => {
-        // L2 Login check
-        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage1 = await shared.NoDataMessage.innerText();
-        await expect(noMessage1).toBe(data.NoDataMessage);
-        await shared.ClickLogout();
+//  await test.step("Check EPR on other non Approver accounts", async () => {
+//         // L2 Login check
+//         await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+//         await shared.ClickApprovals();
+//         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+//         await shared.ValidateUseSearchforNoData(TC4EPRNo);
+//         let noMessage1 = await shared.NoDataMessage.innerText();
+//         await expect(noMessage1).toBe(data.NoDataMessage);
+//         await shared.ClickLogout();
 
-        // L3 Login check
-        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage2 = await shared.NoDataMessage.innerText();
-        await expect(noMessage2).toBe(data.NoDataMessage);
-await shared.ClickLogout();
+//         // L3 Login check
+//         await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+//         await shared.ClickApprovals();
+//         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+//         await shared.ValidateUseSearchforNoData(TC4EPRNo);
+//         let noMessage2 = await shared.NoDataMessage.innerText();
+//         await expect(noMessage2).toBe(data.NoDataMessage);
+// await shared.ClickLogout();
 
-        // Accounting check
-        await loginFlow.login(login.AP, login.APPW);
-        await shared.clickAccounting();
-        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage3 = await shared.NoDataMessage.innerText();
-        await expect(noMessage3).toBe(data.NoDataMessage);
-await shared.ClickLogout();
-      });
+//         // Accounting check
+//         await loginFlow.login(login.AP, login.APPW);
+//         await shared.clickAccounting();
+//         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+//         await shared.ValidateUseSearchforNoData(TC4EPRNo);
+//         let noMessage3 = await shared.NoDataMessage.innerText();
+//         await expect(noMessage3).toBe(data.NoDataMessage);
+// await shared.ClickLogout();
+//       });
 
   // ───────────────────────────────────────────────
   // STEP 2: Approver L1
@@ -604,16 +605,16 @@ await shared.ClickLogout();
     await shared.ClickApprovals();
 
     await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC4EPRNo);
 
-    await eprFormFields.ClickActionCol(latestEPR);
+    await eprFormFields.ClickActionCol(TC4EPRNo);
     await eprFormFields.ApproveARequest();
 
     await shared.ToastNotificationMessage();
-    await shared.ValidateUseSearchforNoData(latestEPR);
+    await shared.ValidateUseSearchforNoData(TC4EPRNo);
 
     await shared.DoneTabButton.click();
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC4EPRNo);
     await shared.GetStatus();
 
     await Promise.all([
@@ -625,25 +626,25 @@ await shared.ClickLogout();
   // ───────────────────────────────────────────────
   // STEP 3: Approver L2 (AVP)
   // ───────────────────────────────────────────────
-  await test.step("Check EPR on other non Approver accounts", async () => {
-        // L2 Login check
-        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage1 = await shared.NoDataMessage.innerText();
-        await expect(noMessage1).toBe(data.NoDataMessage);
-        await shared.ClickLogout();
+//   await test.step("Check EPR on other non Approver accounts", async () => {
+//         // L2 Login check
+//         await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+//         await shared.ClickApprovals();
+//         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+//         await shared.ValidateUseSearchforNoData(TC4EPRNo);
+//         let noMessage1 = await shared.NoDataMessage.innerText();
+//         await expect(noMessage1).toBe(data.NoDataMessage);
+//         await shared.ClickLogout();
 
-        // L3 Login check
-        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        let noMessage2 = await shared.NoDataMessage.innerText();
-        await expect(noMessage2).toBe(data.NoDataMessage);
-await shared.ClickLogout();
-      });
+//         // L3 Login check
+//         await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+//         await shared.ClickApprovals();
+//         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+//         await shared.ValidateUseSearchforNoData(TC4EPRNo);
+//         let noMessage2 = await shared.NoDataMessage.innerText();
+//         await expect(noMessage2).toBe(data.NoDataMessage);
+// await shared.ClickLogout();
+//       });
 
   // ───────────────────────────────────────────────
   // STEP 4: Accounting Approval
@@ -652,13 +653,13 @@ await shared.ClickLogout();
     await loginFlow.login(login.AP, login.APPW);
     await shared.clickAccounting();
     await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-    await shared.UseSearch(latestEPR);
+    await shared.UseSearch(TC4EPRNo);
 
-    await eprFormFields.ClickActionsColAccounting(latestEPR);
+    await eprFormFields.ClickActionCol(TC4EPRNo);
     await eprFormFields.AcknowledgeARequest();
 
     await shared.ToastNotificationMessage();
-    await shared.ValidateUseSearchforNoData(latestEPR);
+    await shared.ValidateUseSearchforNoData(TC4EPRNo);
 
     await shared.DoneTabButton.click();
     await shared.UseSearchAccounting();
@@ -685,7 +686,8 @@ await shared.ClickLogout();
     const eprFormFields = new EprFields(page);
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
-
+    
+    let TC5EPRNo = ""
     await page.goto(url.loginURL);
     //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await loginFlow.login(login.USER, login.PW);
@@ -713,9 +715,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC5EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC5EPRNo);
 
 
       // Logout Requestor
@@ -732,13 +734,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC5EPRNo);
+      await eprFormFields.ClickActionCol(TC5EPRNo);
       await eprFormFields.RejectARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC5EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC5EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -751,7 +753,7 @@ await shared.ClickLogout();
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.DoneTabButton.click()
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC5EPRNo);
       })
       await page.close();
 
@@ -764,6 +766,8 @@ await shared.ClickLogout();
     const eprFormFields = new EprFields(page);
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
+
+    let TC6EPRNo = ""
 
     await page.goto(url.loginURL);
     await loginFlow.login(login.USER, login.PW);
@@ -791,9 +795,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC6EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
 
 
       // Logout Requestor
@@ -809,13 +813,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
+      await eprFormFields.ClickActionCol(TC6EPRNo);
       await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC6EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -828,13 +832,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
+      await eprFormFields.ClickActionCol(TC6EPRNo);
       await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC6EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -847,13 +851,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
+      await eprFormFields.ClickActionCol(TC6EPRNo);
       await eprFormFields.ApproveARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC6EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -867,13 +871,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR)//);
-      await eprFormFields.ClickActionsColAccounting(latestEPR);
+      await shared.UseSearch(TC6EPRNo)//);
+      await eprFormFields.ClickActionCol(TC6EPRNo);
       await eprFormFields.RejectARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC6EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC6EPRNo);
       await shared.AccGetStatus();
       })
 
@@ -889,6 +893,7 @@ await shared.ClickLogout();
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
 
+    let ReturnReqEPR = ''
     await page.goto(url.loginURL);
     //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
     await loginFlow.login(login.USER, login.PW);
@@ -916,9 +921,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      ReturnReqEPR = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(ReturnReqEPR);
 
 
       // Logout Requestor
@@ -935,13 +940,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(ReturnReqEPR);
+        await eprFormFields.ClickActionCol(ReturnReqEPR);
         await eprFormFields.ReturnARequest();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqEPR);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(ReturnReqEPR);
         await shared.GetStatus();
 
         // Logout 
@@ -957,7 +962,7 @@ await shared.ClickLogout();
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.DoneTabButton.click()
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqEPR);
       })
       console.log('✅ Rejection of Request by L1 ✅ PASSED');
   });
@@ -968,6 +973,7 @@ await shared.ClickLogout();
     const eprFormFields = new EprFields(page);
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
+    let ReturnReqAccounting = '';
 
     await page.goto(url.loginURL);
     await loginFlow.login(login.USER, login.PW);
@@ -995,9 +1001,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      ReturnReqAccounting = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq();
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(ReturnReqAccounting);
 
 
       // Logout Requestor
@@ -1010,16 +1016,16 @@ await shared.ClickLogout();
 
       await test.step("Approved by Approver L1", async()=>{
       // Login as Approver 1
-        await loginFlow.login(login.MNGR, login.MNGRPW);
+        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
+        await eprFormFields.ClickActionCol(ReturnReqAccounting);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqAccounting);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
         await shared.GetStatus();
 
       // Logout Requestor
@@ -1029,16 +1035,16 @@ await shared.ClickLogout();
       
       await test.step("Approved by Approver L2", async()=>{
       // Login as Approver 1
-        await loginFlow.login(login.AVP, login.AVPPW);
+        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
+        await eprFormFields.ClickActionCol(ReturnReqAccounting);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqAccounting);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
         await shared.GetStatus();
 
       // Logout Requestor
@@ -1048,16 +1054,16 @@ await shared.ClickLogout();
 
       await test.step("Approved by Approver L3", async()=>{
       // Login as Approver 3
-        await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
+        await eprFormFields.ClickActionCol(ReturnReqAccounting);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqAccounting);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
         await shared.GetStatus();
 
       // Logout Requestor
@@ -1069,11 +1075,11 @@ await shared.ClickLogout();
         await loginFlow.login(login.AP, login.APPW);
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionsColAccounting(latestEPR);
+        await shared.UseSearch(ReturnReqAccounting);
+        await eprFormFields.ClickActionCol(ReturnReqAccounting);
         await eprFormFields.ReturnARequest();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ReturnReqAccounting);
         await shared.DoneTabButton.click()
         await shared.UseSearchAccounting();
         await shared.AccGetStatus();
@@ -1090,6 +1096,8 @@ await shared.ClickLogout();
     const eprFormFields = new EprFields(page);
     const shared = new SharedLocator(page);
     const loginFlow = new Login(page);
+
+    let TC7EPRNo = ""
 
     await page.goto(url.loginURL);
     // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
@@ -1117,9 +1125,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC7EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC7EPRNo);
 
 
       // Logout Requestor
@@ -1138,13 +1146,13 @@ await shared.ClickLogout();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
         await shared.waitForSelectMultiBtn();
         await page.waitForTimeout(1000);
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(TC7EPRNo);
+        await eprFormFields.ClickActionCol(TC7EPRNo);
         await eprFormFields.ReturnARequest();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC7EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC7EPRNo);
         await shared.GetStatus();
 
         // Logout 
@@ -1159,7 +1167,7 @@ await shared.ClickLogout();
         await loginFlow.login(login.AP, login.APPW);
         await shared.clickAccounting();
         await page.waitForURL('**accounting?tab=pending-approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoDatainDoneTab(latestEPR);
+        await shared.ValidateUseSearchforNoDatainDoneTab(TC7EPRNo);
 
                 // Logout 
         await Promise.all([
@@ -1172,22 +1180,22 @@ await shared.ClickLogout();
         await loginFlow.login(login.USER, login.PW);
         await requestPage.SummaryTab.click()
         await shared.EPRColumn.waitFor({state:'visible', timeout: 5000})
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR)
+        await shared.UseSearch(TC7EPRNo);
+        await eprFormFields.ClickActionCol(TC7EPRNo)
         await eprFormFields.EditReturnedRequest();
         await eprFormFields.AddTransBtn().waitFor();
         await eprFormFields.CompareEPRDetails();
       })
 
       await test.step("Edit Form for resubmission", async()=>{
-        await eprFormFields.EditReturnedEPRforResubmission(latestEPR);
+        await eprFormFields.EditReturnedEPRforResubmission(TC7EPRNo);
         await eprFormFields.ClickNext();
         await eprFormFields.ClickSubmitRequest();
         await eprFormFields.ClickSubmit();
         await requestPage.waitForViewofViewAllReq();
         await page.waitForTimeout(5000);
         resubmittedReturnedEPR = await eprFormFields.GetNewEPRNo();
-        console.log(`The new ressubmitted EPR #: ${resubmittedReturnedEPR} from EPR: ${latestEPR}`)
+        console.log(`The new ressubmitted EPR #: ${resubmittedReturnedEPR} from EPR: ${TC7EPRNo}`)
         console.log("✅ RESSUBMISSION of RETURNED EPR PASSED ✅")
       })
       await page.close();
@@ -1207,28 +1215,29 @@ await shared.ClickLogout();
     const loginFlow = new Login(page);
     const admin = new AdminPage(page)
 
+    let TC8EPRNo = ""
+
     await page.goto(url.loginURL);
     // await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
 
-      // await test.step("Create New Delegation", async()=>{
+      await test.step("Create New Delegation", async()=>{
 
-      // await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
-      // await page.waitForLoadState("domcontentloaded");
-      // await page.goto(url.users.approver.adminPage);
-      // await page.waitForURL('**/approval-delegation', { waitUntil: "domcontentloaded" });
-      // // Perform actions
-      // await admin.createDelegation(); //approver3
-      // await shared.ToastNotificationMessage();
-      // await shared.UseSearch(latestEPR);
+      await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+      await page.waitForLoadState("domcontentloaded");
+      await page.goto(url.users.approver.adminPage);
+      await page.waitForURL('**/approval-delegation', { waitUntil: "domcontentloaded" });
+      // Perform actions
+      await admin.createDelegation(); //approver3
+      await shared.ToastNotificationMessage();
 
 
-      // // Logout Requestor
-      //   await Promise.all([
-      //     page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
-      //     shared.ClickLogoutL1(),
-      //   ]);
+      // Logout Requestor
+        await Promise.all([
+          page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+          shared.ClickLogoutL1(),
+        ]);
 
-      // });
+      });
       await test.step("Create a Request", async()=>{
 
       await loginFlow.login(login.USER, login.PW);
@@ -1250,9 +1259,9 @@ await shared.ClickLogout();
       await eprFormFields.ClickSubmit();
       await requestPage.waitForViewofViewAllReq();
       await page.waitForTimeout(5000);
-      latestEPR = await eprFormFields.GetNewEPRNo();
+      TC8EPRNo = await eprFormFields.GetNewEPRNo();
       await requestPage.ClickViewAllReq()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
 
 
       // Logout Requestor
@@ -1271,7 +1280,7 @@ await shared.ClickLogout();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
         await shared.waitForSelectMultiBtn();
         await page.waitForTimeout(1000);
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC8EPRNo);
 
         // Logout 
           await Promise.all([
@@ -1289,7 +1298,7 @@ await shared.ClickLogout();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
         await shared.waitForSelectMultiBtn();
         await page.waitForTimeout(1000);
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC8EPRNo);
 
         // Logout 
       await Promise.all([
@@ -1305,13 +1314,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
+      await eprFormFields.ClickActionCol(TC8EPRNo);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC8EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -1325,13 +1334,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
+      await eprFormFields.ClickActionCol(TC8EPRNo);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC8EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -1345,13 +1354,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
       await shared.ClickApprovals();
       await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR);
-      await eprFormFields.ClickActionCol(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
+      await eprFormFields.ClickActionCol(TC8EPRNo);
       await eprFormFields.ApproveARequestwithNote();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC8EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR);
+      await shared.UseSearch(TC8EPRNo);
       await shared.GetStatus();
 
       // Logout Requestor
@@ -1363,13 +1372,13 @@ await shared.ClickLogout();
       await loginFlow.login(login.AP, login.APPW);
       await shared.clickAccounting();
       await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-      await shared.UseSearch(latestEPR)//);
-      await eprFormFields.ClickActionsColAccounting(latestEPR);
+      await shared.UseSearch(TC8EPRNo)//);
+      await eprFormFields.ClickActionCol(TC8EPRNo);
       await eprFormFields.AcknowledgeARequest();
       await shared.ToastNotificationMessage();
-      await shared.ValidateUseSearchforNoData(latestEPR);
+      await shared.ValidateUseSearchforNoData(TC8EPRNo);
       await shared.DoneTabButton.click()
-      await shared.UseSearch(latestEPR)
+      await shared.UseSearch(TC8EPRNo)
       await shared.AccGetStatus();
 
       console.log(chalk.green('✅ Request to Approval up to MANCOM (up to 1M) ✅ PASSED'));
@@ -1479,6 +1488,8 @@ await shared.ClickLogout();
       const shared = new SharedLocator(page);
       const loginFlow = new Login(page);
 
+      let TC9EPRNo = ""
+
       await page.goto(url.loginURL);
       //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
       await loginFlow.login(login.USER, login.PW);
@@ -1497,6 +1508,8 @@ await shared.ClickLogout();
         await eprFormFields.AddTransBtn().click();
         await eprFormFields.InputFieldsonTransactions2(page);
         await eprFormFields.ChargeCostCenterforCrossDept();
+        await eprFormFields.ValidateDIfferentChargeCostBanner();
+        await eprFormFields.AddJustification();
         await eprFormFields.FillNetAmtupTo1M();
         await eprFormFields.ClickAddNewTransactions();
         await eprFormFields.ClickNext();
@@ -1504,9 +1517,9 @@ await shared.ClickLogout();
         await eprFormFields.ClickSubmit();
         await requestPage.waitForViewofViewAllReq();
         await page.waitForTimeout(5000);
-        latestEPR = await eprFormFields.GetNewEPRNo();
+        TC9EPRNo = await eprFormFields.GetNewEPRNo();
         await requestPage.ClickViewAllReq();
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
 
 
         // Logout Requestor
@@ -1517,35 +1530,35 @@ await shared.ClickLogout();
 
         });
 
-      await test.step("Check EPR on other non Approver accounts", async()=>{
-        //await loginFlow.login(login.AVP, login.AVPPW);
-        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      // await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   //await loginFlow.login(login.AVP, login.AVPPW);
+      //   await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC9EPRNo);
+      //   await shared.ClickLogout();
 
 
-        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      //   await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC9EPRNo);
+      //   await shared.ClickLogout();
 
-        //await loginFlow.login(login.VP, login.VPPW);
-        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
-        await shared.ClickApprovals();
-        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      //   //await loginFlow.login(login.VP, login.VPPW);
+      //   await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC9EPRNo);
+      //   await shared.ClickLogout();
 
-        await loginFlow.login(login.AP, login.APPW);
-        await shared.clickAccounting();
-        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
-        await shared.ClickLogout();
+      //   await loginFlow.login(login.AP, login.APPW);
+      //   await shared.clickAccounting();
+      //   await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC9EPRNo);
+      //   await shared.ClickLogout();
 
-        });
+      //   });
 
       await test.step("Approved by DIST Dept Head", async()=>{
         // Login as Approver 1
@@ -1553,13 +1566,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
-        await eprFormFields.ApproveARequestwithNote();
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
         await shared.GetStatus();
 
         // Logout Requestor
@@ -1574,13 +1587,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
         await shared.GetStatus();
 
         // Logout Requestor
@@ -1594,13 +1607,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
         await shared.GetStatus();
 
         // Logout Requestor
@@ -1613,13 +1626,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR);
-        await eprFormFields.ClickActionCol(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
         await eprFormFields.ApproveARequestwithNote();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR);
+        await shared.UseSearch(TC9EPRNo);
         await shared.GetStatus();
 
         // Logout Requestor
@@ -1633,13 +1646,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.AP, login.APPW);
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR)//);
-        await eprFormFields.ClickActionsColAccounting(latestEPR);
+        await shared.UseSearch(TC9EPRNo)//);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
         await eprFormFields.AcknowledgeARequest();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR)
+        await shared.UseSearch(TC9EPRNo)
         await shared.AccGetStatus();
 
         await page.close()
@@ -1650,7 +1663,7 @@ await shared.ClickLogout();
       
   });
 
-  test('CROSS DEPARTMENT Request to Rejection up to VP cost center (1M amount)', async ({ page }) => {
+  test.skip('CROSS DEPARTMENT Request to Rejection up to VP cost center (1M amount)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -1675,6 +1688,8 @@ await shared.ClickLogout();
         await eprFormFields.AddTransBtn().click();
         await eprFormFields.InputFieldsonTransactions2(page);
         await eprFormFields.ChargeCostCenterforCrossDept();
+        await eprFormFields.ValidateDIfferentChargeCostBanner();
+        await eprFormFields.AddJustification();
         await eprFormFields.FillNetAmtupTo1M();
         await eprFormFields.ClickAddNewTransactions();
         await eprFormFields.ClickNext();
@@ -1749,13 +1764,14 @@ await shared.ClickLogout();
         console.log(chalk.green('✅ CROSS DEPARTMENT Request to Rejection up to VP cost center (1M amount) ✅ PASSED'));
   });
 
-  test('Create Request of SLT VP', async ({ page }) => {
+  test('User(DIST) Create a Request for Cost Center VP using his Deafult Cost Center', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
       const shared = new SharedLocator(page);
       const loginFlow = new Login(page);
 
+      let ccVPEPR = ''
       await page.goto(url.loginURL);
       //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
       await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
@@ -1781,10 +1797,13 @@ await shared.ClickLogout();
         await eprFormFields.ClickSubmit();
         await requestPage.waitForViewofViewAllReq();
         await page.waitForTimeout(5000);
-        latestEPR = await eprFormFields.GetNewEPRNo();
+        ccVPEPR = await eprFormFields.GetNewEPRNo();
         await requestPage.ClickViewAllReq();
-        await shared.UseSearch(latestEPR);
-
+        await requestPage.ClickSummaryTab()
+        await shared.UseSearch(ccVPEPR);
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.ValidateApprovalHierarchy(page);
 
         // Logout Requestor
           await Promise.all([
@@ -1799,7 +1818,7 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ccVPEPR);
         await shared.ClickLogout();
         });
         await test.step("Check EPR on other non Approver accounts, Approver L2", async()=>{
@@ -1807,7 +1826,7 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ccVPEPR);
         await shared.ClickLogout();
         });
         await test.step("Check EPR on other non Approver accounts, Approver L3", async()=>{
@@ -1815,7 +1834,7 @@ await shared.ClickLogout();
         await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
         await shared.ClickApprovals();
         await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ccVPEPR);
         await shared.ClickLogout();
         });
 
@@ -1823,13 +1842,13 @@ await shared.ClickLogout();
         await loginFlow.login(login.AP, login.APPW);
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
-        await shared.UseSearch(latestEPR)//);
-        await eprFormFields.ClickActionsColAccounting(latestEPR);
+        await shared.UseSearch(ccVPEPR)//);
+        await eprFormFields.ClickActionCol(ccVPEPR);
         await eprFormFields.AcknowledgeARequest();
         await shared.ToastNotificationMessage();
-        await shared.ValidateUseSearchforNoData(latestEPR);
+        await shared.ValidateUseSearchforNoData(ccVPEPR);
         await shared.DoneTabButton.click()
-        await shared.UseSearch(latestEPR)
+        await shared.UseSearch(ccVPEPR)
         await shared.AccGetStatus();
 
         await page.close()
@@ -1838,7 +1857,7 @@ await shared.ClickLogout();
   });
 
 
-  test('SLT Request to AP Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test('Create a Request to SLT VP & AP Approval up to MANCOM (up to 1M)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -1916,7 +1935,7 @@ await shared.ClickLogout();
         await shared.clickAccounting();
         await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
         await shared.UseSearch(latestEPR)//);
-        await eprFormFields.ClickActionsColAccounting(latestEPR);
+        await eprFormFields.ClickActionCol(latestEPR);
         await eprFormFields.AcknowledgeARequest();
         await shared.ToastNotificationMessage();
         await shared.ValidateUseSearchforNoData(latestEPR);
@@ -1932,7 +1951,7 @@ await shared.ClickLogout();
   });
 
 
-  test('Cross Department SLT Request to AP Approval (up to 1M)', async ({ page }) => {
+  test('Cross Department SLT VP Request to AP Approval (up to 1M)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -2060,7 +2079,7 @@ await shared.ClickLogout();
           await shared.clickAccounting();
           await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
           await shared.UseSearch(latestEPR)//);
-          await eprFormFields.ClickActionsColAccounting(latestEPR);
+          await eprFormFields.ClickActionCol(latestEPR);
           await eprFormFields.AcknowledgeARequest();
           await shared.ToastNotificationMessage();
           await shared.ValidateUseSearchforNoData(latestEPR);
