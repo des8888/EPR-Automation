@@ -12,6 +12,7 @@ import AdminPage from '../pages/Admin';
 import { afterEach } from 'node:test';
 import { link } from 'fs';
 import { clear, log } from 'console';
+import dets from "../data/inputFormData.json"
 
 
 test.beforeAll(async ()=>{
@@ -59,7 +60,7 @@ test.describe('E2E Flow', () => {
     }
   })
 //********************************************************************************** */
-  test.skip('From create request up to MANCOM (amounting to 1M)', async ({ page }) => {
+  test.only('From create request up to MANCOM (amounting to 1M)', async ({ page }) => {
     
     const requestPage = new RequestPage(page);
     const eprFormFields = new EprFields(page);
@@ -1663,6 +1664,8 @@ test.describe('E2E Flow', () => {
       
   });
 
+
+
   test.skip('CROSS DEPARTMENT Request to Rejection up to VP cost center (1M amount)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
@@ -1764,7 +1767,7 @@ test.describe('E2E Flow', () => {
         console.log(chalk.green('✅ CROSS DEPARTMENT Request to Rejection up to VP cost center (1M amount) ✅ PASSED'));
   });
 
-  test('User(DIST) Create a Request for Cost Center VP using his Deafult Cost Center', async ({ page }) => {
+  test.only('User(DIST) Create a Request for Cost Center VP using his Deafult Cost Center', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -1785,11 +1788,11 @@ test.describe('E2E Flow', () => {
         await requestPage.ClickNewRequest();
         await requestPage.clickNewRequestBtn();
         await eprFormFields.AddTransBtn().waitFor();
-        await eprFormFields.InputOnFieldsForRequestor1(page);
+        await eprFormFields.InputOnFields(page);
         await eprFormFields.SingleFileAttachment();
         await eprFormFields.AddTransBtn().click();
         await eprFormFields.InputFieldsonTransactions2(page);
-        await eprFormFields.ChargeCostCenterDefault();
+        await eprFormFields.ChargeCostCenterforCrossDept();
         await eprFormFields.FillNetAmtupTo1M();
         await eprFormFields.ClickAddNewTransactions();
         await eprFormFields.ClickNext();
@@ -1798,7 +1801,7 @@ test.describe('E2E Flow', () => {
         await requestPage.waitForViewofViewAllReq();
         await page.waitForTimeout(5000);
         ccVPEPR = await eprFormFields.GetNewEPRNo();
-        await requestPage.ClickViewAllReq();
+        await requestPage.ClickViewAllReqforImmediatehead();
         await requestPage.ClickSummaryTab()
         await shared.UseSearch(ccVPEPR);
         await requestPage.clickEPRNoCol();
@@ -1857,7 +1860,7 @@ test.describe('E2E Flow', () => {
   });
 
 
-  test('Create a Request to SLT VP & AP Approval up to MANCOM (up to 1M)', async ({ page }) => {
+  test.skip('Create a Request to SLT VP & AP Approval up to MANCOM (up to 1M)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -1951,7 +1954,7 @@ test.describe('E2E Flow', () => {
   });
 
 
-  test('Cross Department SLT VP Request to AP Approval (up to 1M)', async ({ page }) => {
+  test.skip('Cross Department SLT VP Request to AP Approval (up to 1M)', async ({ page }) => {
       
       const requestPage = new RequestPage(page);
       const eprFormFields = new EprFields(page);
@@ -2091,5 +2094,585 @@ test.describe('E2E Flow', () => {
 
         console.log(chalk.green('✅ SLT Request to AP Approval up to MANCOM (up to 1M) ✅ PASSED'));
     });
+  });
+
+  test.skip('MULTIPLE CROSS DEPARTMENT Request to Approval up to MANCOM (up to 1M)', async ({ page }) => {
+      
+      const requestPage = new RequestPage(page);
+      const eprFormFields = new EprFields(page);
+      const shared = new SharedLocator(page);
+      const loginFlow = new Login(page);
+
+      let TC9EPRNo = ""
+
+      await page.goto(url.loginURL);
+      //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+      await loginFlow.login(login.USER, login.PW);
+      await page.waitForLoadState("domcontentloaded");
+      //Navigate to landing page (session is already logged in)
+      await test.step("Create a Request", async()=>{
+        await page.goto(reqLandingPage);
+        await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
+        // Perform actions
+        await requestPage.ClickNewRequest();
+        await requestPage.clickNewRequestBtn();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.InputOnFieldsForRequestor1(page);
+        await eprFormFields.SingleFileAttachment();
+        
+        // await eprFormFields.InputFieldsonTransactions2(page);
+        // await eprFormFields.ChargeCostCenterforCrossDept();
+        // await eprFormFields.ValidateDIfferentChargeCostBanner();
+        // await eprFormFields.AddJustification();
+        // await eprFormFields.FillNetAmtupTo1M();
+        // await eprFormFields.ClickAddNewTransactions();
+
+        for (const transaction of dets.transaction) {
+          await eprFormFields.AddTransBtn().click();
+          await eprFormFields.InputFieldsonTransactions2(page);
+          await eprFormFields.ChargeCostCenterforMultipleCrossDept(transaction.CrossDeptChargeCostCenter)
+          await eprFormFields.ValidateDIfferentChargeCostBanner();
+          await eprFormFields.AddJustification();
+          await eprFormFields.FillNetAmtupTo1M();
+          await eprFormFields.ClickAddNewTransactions();
+
+      }
+        await eprFormFields.ClickNext();
+        await eprFormFields.ClickSubmitRequest();
+        await eprFormFields.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        TC9EPRNo = await eprFormFields.GetNewEPRNo();
+        await requestPage.ClickViewAllReq();
+        await shared.UseSearch(TC9EPRNo);
+
+
+        // Logout Requestor
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+        });
+
+      await test.step("Check EPR on other non Approver accounts", async()=>{
+        //await loginFlow.login(login., login.AVPPW);
+        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.ClickLogout();
+
+
+        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.ClickLogout();
+
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.ClickLogout();
+
+        await loginFlow.login(login.AP, login.APPW);
+        await shared.clickAccounting();
+        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.ClickLogout();
+
+        });
+
+      await test.step("Approved by DISG Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.DISG, login.DISGPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn();
+        await shared.closeApprovalHierarchysidepanel();
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("Approved by RBD Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.RBD, login.RBDPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.closeApprovalHierarchysidepanel();
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("Approved by REOD Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.REOD, login.REODPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.closeApprovalHierarchysidepanel();
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("Approved by DIST Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.closeApprovalHierarchysidepanel();
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("Approved by Approver L1", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.MNGR, login.MNGRPW);
+        await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveARequestwithNote();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+
+        // Logout Requestor
+        await shared.ClickLogout();
+
+        })
+
+      await test.step("Approved by Approver L2", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.AVP, login.AVPPW);
+        await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveARequestwithNote();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+
+        // Logout Requestor
+        await shared.ClickLogout();
+
+        })
+      await test.step("Approved by Approver L3", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.ApproveARequestwithNote();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo);
+        await shared.GetStatus();
+
+        // Logout Requestor
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("Approved by Accounting", async()=>{
+        await loginFlow.login(login.AP, login.APPW);
+        await shared.clickAccounting();
+        await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC9EPRNo)//);
+        await eprFormFields.ClickActionCol(TC9EPRNo);
+        await eprFormFields.AcknowledgeARequest();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC9EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC9EPRNo)
+        await shared.AccGetStatus();
+
+        await page.close()
+
+        console.log(chalk.green('✅ CROSS DEPARTMENT Request to Approval up to MANCOM (up to 1M) ✅ PASSED'));
+    });
+
+      
+  });
+
+  test.skip('MULTIPLE CROSS DEPARTMENT Request to REJECTION of Request (up to 1M)', async ({ page }) => {
+      
+      const requestPage = new RequestPage(page);
+      const eprFormFields = new EprFields(page);
+      const shared = new SharedLocator(page);
+      const loginFlow = new Login(page);
+
+      let TC14EPRNo = ""
+
+      await page.goto(url.loginURL);
+      //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+      await loginFlow.login(login.USER, login.PW);
+      // await page.waitForLoadState("domcontentloaded");
+      //Navigate to landing page (session is already logged in)
+      await test.step("Create a Request", async()=>{
+        await page.goto(reqLandingPage);
+        await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
+        // Perform actions
+        await requestPage.ClickNewRequest();
+        await requestPage.clickNewRequestBtn();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.InputOnFieldsForRequestor1(page);
+        await eprFormFields.MultipleValidFileAttach();
+
+        for (const transaction of dets.transaction) {
+          await eprFormFields.AddTransBtn().click();
+          await eprFormFields.InputFieldsonTransactions2(page);
+          await eprFormFields.ChargeCostCenterforMultipleCrossDept(transaction.CrossDeptChargeCostCenter)
+          await eprFormFields.ValidateDIfferentChargeCostBanner();
+          await eprFormFields.AddJustification();
+          await eprFormFields.FillNetAmtUpTo500k();
+          await eprFormFields.ClickAddNewTransactions();
+
+      }
+        await eprFormFields.ClickNext();
+        await eprFormFields.ClickSubmitRequest();
+        await eprFormFields.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        TC14EPRNo = await eprFormFields.GetNewEPRNo();
+        await requestPage.ClickViewAllReq();
+        await shared.UseSearch(TC14EPRNo);
+
+
+        // Logout Requestor
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+        });
+
+      // await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   //await loginFlow.login(login., login.AVPPW);
+      //   await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+
+      //   await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   //await loginFlow.login(login.VP, login.VPPW);
+      //   await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   await loginFlow.login(login.AP, login.APPW);
+      //   await shared.clickAccounting();
+      //   await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   });
+
+      await test.step("Approved by DISG Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.DISG, login.DISGPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC14EPRNo);
+        await eprFormFields.ClickActionCol(TC14EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC14EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC14EPRNo);
+        await shared.GetStatus();
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("REJECT by REOD Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.REOD, login.REODPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC14EPRNo);
+        await eprFormFields.ClickActionCol(TC14EPRNo);
+        await eprFormFields.RejectARequestwithNote();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC14EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC14EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.GetVPApprovalHierarchyDetails(page);
+
+        // Logout Requestor
+        await page.close();
+      });
+
+      // await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   //await loginFlow.login(login., login.AVPPW);
+      //   await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.DoneTabButton.click()
+      //   await shared.UseSearch(TC14EPRNo);
+      //   await shared.GetStatus();
+      //   await shared.ClickLogout();
+
+
+      //   await loginFlow.login(login.RBD, login.RBDPASS);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.DoneTabButton.click()
+      //   await shared.UseSearch(TC14EPRNo);
+      //   await shared.GetStatus();
+      //   await shared.ClickLogout();
+
+      // });
+  });
+
+  test.skip('MULTIPLE CROSS DEPARTMENT Request to RETURNED of Request (up to 1M)', async ({ page }) => {
+      
+      const requestPage = new RequestPage(page);
+      const eprFormFields = new EprFields(page);
+      const shared = new SharedLocator(page);
+      const loginFlow = new Login(page);
+
+      let TC14EPRNo = ""
+
+      await page.goto(url.loginURL);
+      //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+      await loginFlow.login(login.USER, login.PW);
+      // await page.waitForLoadState("domcontentloaded");
+      //Navigate to landing page (session is already logged in)
+      await test.step("Create a Request", async()=>{
+        await page.goto(reqLandingPage);
+        await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+
+        // Perform actions
+        await requestPage.ClickNewRequest();
+        await requestPage.clickNewRequestBtn();
+        await eprFormFields.AddTransBtn().waitFor();
+        await eprFormFields.InputOnFieldsForRequestor1(page);
+        await eprFormFields.MultipleValidFileAttach();
+
+        for (const transaction of dets.transaction) {
+          await eprFormFields.AddTransBtn().click();
+          await eprFormFields.InputFieldsonTransactions2(page);
+          await eprFormFields.ChargeCostCenterforMultipleCrossDept(transaction.CrossDeptChargeCostCenter)
+          await eprFormFields.ValidateDIfferentChargeCostBanner();
+          await eprFormFields.AddJustification();
+          await eprFormFields.FillNetAmtUpTo500k();
+          await eprFormFields.ClickAddNewTransactions();
+
+      }
+        await eprFormFields.ClickNext();
+        await eprFormFields.ClickSubmitRequest();
+        await eprFormFields.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        TC14EPRNo = await eprFormFields.GetNewEPRNo();
+        await requestPage.ClickViewAllReq();
+        await shared.UseSearch(TC14EPRNo);
+
+
+        // Logout Requestor
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+        });
+
+      // await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   //await loginFlow.login(login., login.AVPPW);
+      //   await loginFlow.login(login.APPROVER1, login.APPROVER1PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+
+      //   await loginFlow.login(login.APPROVER2, login.APPROVER2PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   //await loginFlow.login(login.VP, login.VPPW);
+      //   await loginFlow.login(login.APPROVER3, login.APPROVER3PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   await loginFlow.login(login.AP, login.APPW);
+      //   await shared.clickAccounting();
+      //   await page.waitForURL(url.users.accounting.accountingPage, { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.ClickLogout();
+
+      //   });
+
+      await test.step("Approved by DISG Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.DISG, login.DISGPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC14EPRNo);
+        await eprFormFields.ClickActionCol(TC14EPRNo);
+        await eprFormFields.ApproveConfirmationVPofDifferentChargeCost();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC14EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC14EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.closeApprovalHierarchysidepanel();
+        
+
+        // Logout Requestor
+        await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+        })
+
+      await test.step("REJECT by REOD Dept Head", async()=>{
+        // Login as Approver 1
+        //await loginFlow.login(login.VP, login.VPPW);
+        await loginFlow.login(login.REOD, login.REODPASS);
+        await shared.ClickApprovals();
+        await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+        await shared.UseSearch(TC14EPRNo);
+        await eprFormFields.ClickActionCol(TC14EPRNo);
+        await eprFormFields.ReturnARequest();
+        await shared.ToastNotificationMessage();
+        await shared.ValidateUseSearchforNoData(TC14EPRNo);
+        await shared.DoneTabButton.click()
+        await shared.UseSearch(TC14EPRNo);
+        await shared.GetStatus();
+        await requestPage.clickEPRNoCol();
+        await shared.clickViewApprovalHierarchyBtn()
+        await shared.GetVPApprovalHierarchyDetails(page);
+
+        // Close
+        await page.close()
+
+      
+      });
+
+      // await test.step("Check EPR on other non Approver accounts", async()=>{
+      //   //await loginFlow.login(login., login.AVPPW);
+      //   await loginFlow.login(login.DIST_DEPT_HEAD, login.DIST_DEPT_HEAD_PW);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.DoneTabButton.click()
+      //   await shared.UseSearch(TC14EPRNo);
+      //   await shared.GetStatus();
+      //   await shared.ClickLogout();
+
+
+      //   await loginFlow.login(login.RBD, login.RBDPASS);
+      //   await shared.ClickApprovals();
+      //   await page.waitForURL('**/approvals', { waitUntil: "domcontentloaded" });
+      //   await shared.ValidateUseSearchforNoData(TC14EPRNo);
+      //   await shared.DoneTabButton.click()
+      //   await shared.UseSearch(TC14EPRNo);
+      //   await shared.GetStatus();
+      //   await shared.ClickLogout();
+
+      // });
   });
 });

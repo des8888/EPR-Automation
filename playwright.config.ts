@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 4,
 
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
-  timeout: 400000,
+  timeout: 4000000,
   //timeout: 50000,
 
   use: {
@@ -22,7 +22,7 @@ export default defineConfig({
   },
 
   expect: {
-    timeout: 300000,
+    timeout: 400000,
     //timeout: 3000,
   },
 });

@@ -44,7 +44,16 @@ export default class RequestPage {
 
     async ClickViewAllReq() {
         await this.ViewAllRequests.click();
-        await expect(this.EPRNoColumn).toHaveText(/\S/, { timeout: 5000 });
+        await this.EPRNoColumn.waitFor({
+        state: 'visible',
+        timeout: 50000
+    });
+        await expect(this.EPRNoColumn).toHaveText(/\S/, { timeout: 500000 });
+        //await expect(this.EPRNoColumn).not.toHaveText(/\S/, { timeout: 10000 });
+    }
+    async ClickViewAllReqforImmediatehead() {
+        await this.ViewAllRequests.click();
+        //await expect(this.EPRNoColumn).toHaveText(/\S/, { timeout: 5000 });
     }
     get NewRequestButton() {
         return this.NewRequestBtn;

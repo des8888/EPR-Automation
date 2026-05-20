@@ -6,6 +6,7 @@ import SharedLocator from '../pages/common/shared-locators';
 import Login from '../pages/loginPage';
 import login from '../data/login.json';
 import chalk from 'chalk';
+import dets from '../data/inputFormData.json'
 
 const reqLandingPage = url.users.requestor.requestLandingPage;
 
@@ -420,6 +421,63 @@ test.describe('Requestor Flow', () => {
     console.log(chalk.green(`\n✅ Successfully created and validated EPR: ${latestEPR}`));
 });
 
+ test.only("MULTIPLE CROSS DEPARTMENT Request to Approval up to MANCOM (up to 1M)", async({page})=>{
+        await page.goto(reqLandingPage);
+        await page.waitForURL('**/requests', { waitUntil: "domcontentloaded" });
+        let TC9EPRNo = '';
+            
+        const requestPage = new RequestPage(page);
+        const eprForm = new eprFields(page);
+        const shared = new SharedLocator(page);
+        const loginFlow = new Login(page);
+
+        await page.goto(url.loginURL);
+        //await loginFlow.login(login.ASSTMNGR, login.ASSTMNGRPW);
+        await loginFlow.login(login.USER, login.PW);
+        await page.waitForLoadState("domcontentloaded");
+        // Perform actions
+        await requestPage.ClickNewRequest();
+        await requestPage.clickNewRequestBtn();
+        await eprForm.AddTransBtn().waitFor();
+        await eprForm.InputOnFieldsForRequestor1(page);
+        await eprForm.SingleFileAttachment();
+        
+        // await eprFormFields.InputFieldsonTransactions2(page);
+        // await eprFormFields.ChargeCostCenterforCrossDept();
+        // await eprFormFields.ValidateDIfferentChargeCostBanner();
+        // await eprFormFields.AddJustification();
+        // await eprFormFields.FillNetAmtupTo1M();
+        // await eprFormFields.ClickAddNewTransactions();
+
+        for (const transaction of dets.transaction) {
+          await eprForm.AddTransBtn().click();
+          await eprForm.InputFieldsonTransactions2(page);
+          await eprForm.ChargeCostCenterforMultipleCrossDept(transaction.CrossDeptChargeCostCenter)
+          await eprForm.ValidateDIfferentChargeCostBanner();
+          await eprForm.AddJustification();
+          await eprForm.FillNetAmtupTo1M();
+          await eprForm.ClickAddNewTransactions();
+
+      }
+        await eprForm.ClickNext();
+        await eprForm.ClickSubmitRequest();
+        await eprForm.ClickSubmit();
+        await requestPage.waitForViewofViewAllReq();
+        await page.waitForTimeout(5000);
+        TC9EPRNo = await eprForm.GetNewEPRNo();
+        await requestPage.ClickViewAllReq();
+        await shared.UseSearch(TC9EPRNo);
+
+
+        // Logout Requestor
+          await Promise.all([
+            page.waitForURL(url.loginURL, { waitUntil: "domcontentloaded" }),
+            shared.ClickLogoutL1(),
+          ]);
+
+});
+
+
 //   test('Check all data fields if there is data', async ({ page }) => {
 //     let latestEPR = '';
 
@@ -504,7 +562,7 @@ test.describe('Requestor Flow', () => {
 //     console.log(`\n✅ Successfully created and validated EPR: ${latestEPR}`);
 // });
 
-test.only("Create New Request 10 times", async ({ page }) => {
+test("Create New Request 10 times", async ({ page }) => {
   const shared = new SharedLocator(page);
   let requestNumber: string;
   for (let i = 1; i <= 10; i++) {
@@ -636,25 +694,25 @@ test.only("Create New Request 10 times", async ({ page }) => {
 
 // test('Validate Total amount after Deletion', async({page})=>{
 //   const requestPage = new RequestPage(page);
-//     const eprFormFields = new eprFields(page);
+//     const eprForm = new eprFields(page);
 
 //     // Navigate to landing page (session will persist from user-data-dir)
 //     await page.goto(reqLandingPage);
 
 //     // Perform actions
 //     await requestPage.ClickNewRequest();
-//     await eprFormFields.AddTransBtn().waitFor();
-//     await eprFormFields.InputOnFields(page);
+//     await eprForm.AddTransBtn().waitFor();
+//     await eprForm.InputOnFields(page);
 //     for (let i = 1; i <= 2; i++) {
-//     await eprFormFields.AddTransBtn().click();
-//     await eprFormFields.InputFieldsonTransactions(page);
-//     await eprFormFields.ClickAddNewTransactions();
+//     await eprForm.AddTransBtn().click();
+//     await eprForm.InputFieldsonTransactions(page);
+//     await eprForm.ClickAddNewTransactions();
 //     }
-//     await eprFormFields.CountTotalAmount();
-//     await eprFormFields.ClickActionCol();
-//     await eprFormFields.ClickDelete();
-//     await eprFormFields.ClickConfirmDelete();
-//     await eprFormFields.CountTotalAmount();
+//     await eprForm.CountTotalAmount();
+//     await eprForm.ClickActionCol();
+//     await eprForm.ClickDelete();
+//     await eprForm.ClickConfirmDelete();
+//     await eprForm.CountTotalAmount();
 //     console.log("Validate Total amount after Deletion ✅ PASSED")
 // })
 

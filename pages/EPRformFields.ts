@@ -9,6 +9,7 @@ const chalk = require('chalk');
 
 export default class EPRFields{
     readonly page: Page;
+    readonly LoginUser: Locator;
     readonly Company: Locator;
     readonly CompanySelect: Locator;
     readonly Payee: Locator;
@@ -106,6 +107,7 @@ export default class EPRFields{
 
     constructor (page: Page){
         this.page = page;
+        this.LoginUser = page.locator('p.MuiTypography-root.MuiTypography-body1.css-1syg1uw');
         this.Company = page.getByRole('textbox', { name: 'Select a Company' });
         this.CompanySelect = page.getByRole('button', { name: `${dets.Company}` });
         this.Payee = page.getByRole('textbox', { name: 'Select a Payee' });
@@ -115,7 +117,7 @@ export default class EPRFields{
         this.BillingFromDate = page.getByRole('gridcell', { name: `${dets.BillingFrom}` })
         this.BillingTo = page.getByRole('button', { name: 'Choose date' }).nth(1)
         this.BillingToDate = page.getByRole('gridcell', { name: `${dets.BillingTo}` }).first()
-        this.DueDate = page.getByRole('button', { name: 'Choose date', exact: true })
+        this.DueDate = page.locator('svg:visible').nth(11)
         this.DueSelectDate = page.getByRole('gridcell', { name: `${dets.DueDate}` })
         this.ModeofPayment = page.getByRole('textbox', { name: 'Select Mode of Payment' })
         this.MoPList = page.getByText('Select an Option', { exact: true })
@@ -518,14 +520,34 @@ export default class EPRFields{
     }
 
     async ChargeCostCenterforCrossDept(){
-        await this.ChargeCostCenter.fill(dets.CrossDeptChargeCostCenter)
-        await this.page.getByRole('option', { name: dets.CrossDeptChargeCostCenter }).click();
+        await this.ChargeCostCenter.fill(dets.CrossDeptChargeCostCenter2)
+        await this.page.getByRole('option', { name: dets.CrossDeptChargeCostCenter2 }).first().click();
         console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center Cross Dept ==='));
     }
+
+    async ChargeCostCenterforMultipleCrossDept(costCenter: string) {
+    await this.ChargeCostCenter.pressSequentially(costCenter, {delay: 500});
+
+    await this.page
+        .getByRole('option', { name: costCenter })
+        .first()
+        .click();
+
+    console.log(
+        chalk.cyan(`=== ✔️ SUCCESS Input Charge Cost Center: ${costCenter} ===`)
+    );
+    }
+    
+
     async ChargeCostCenterDefault(){
-        await this.ChargeCostCenter.fill(dets.ChargeCostCenter)
+        await this.ChargeCostCenter.pressSequentially(dets.ChargeCostCenter, {delay:500})
         await this.page.getByRole('option', { name: dets.ChargeCostCenter }).click();
         console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center Deafult ==='));
+    }
+    async ChargeCostCenterforASSTMNGR(){
+        await this.ChargeCostCenter.pressSequentially(dets.ChargeCostCenter2)
+        await this.page.getByRole('option', { name: dets.ChargeCostCenter2 }).click();
+        console.log(chalk.cyan('=== ✔️ SUCESS Input Charge Cost Center for ASST MNGR ==='));
     }
     async ChargeCostCenterforPROC(){
         await this.ChargeCostCenter.fill(dets.ChargeCostPROC)
@@ -608,7 +630,7 @@ export default class EPRFields{
     async ClickActionCol(latestEPR: string) {
 
        
-        const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//button`)
+        const row = this.page.locator(`//tr[td[normalize-space()='${latestEPR}']]//td`).last()
         
         const maxRetries = 5;
         for(let attempt = 1; attempt <= maxRetries; attempt++){
@@ -644,7 +666,9 @@ export default class EPRFields{
     async ApproveConfirmationVPofDifferentChargeCost(){
         await this.ActionApprove.click()
         await this.ConfirmationProceedBtn.click()
-        await this.ApproveField.fill(dets.ApproveMess);
+        const textMess = this.LoginUser.innerText();
+        const username = (await textMess).replace("Hi, ","").trim()
+        await this.ApproveField.fill(username);
         await this.ApproveReq.click();
         await this.ApproveReq.waitFor({ state: 'hidden', timeout: 50000 });
         console.log(chalk.green(`Approved Request Successfully`))

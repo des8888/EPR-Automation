@@ -35,6 +35,16 @@
 "DIST_DEPT_HEAD_PW":"distP@ssw0rd",
 
 
+"DISG":"testuser+disg@seaoil.com.ph",
+"DISGPASS":"disgP@ssw0rd",
+
+"RBD":"testuser+rbd@seaoil.com.ph",
+"RBDPASS":"rbdP@ssw0rd",
+
+"REOD":"testuser+reod@seaoil.com.ph",
+"REODPASS":"reodP@ssw0rd",
+
+
 "GOOGLEUSER": "desiree_balderama@seaoil.com.ph",
 "GPASS": "Helloa__8"
 }

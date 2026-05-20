@@ -4,6 +4,7 @@ import data from '../../data/filterData.json';
 import EPR from '../../data/eprData.json'
 import { count } from "console";
 import chalk from "chalk";
+import { text } from "stream/consumers";
 export default class SharedLocator{
     readonly page: Page;
     readonly EPRColumn: Locator;
@@ -118,7 +119,7 @@ export default class SharedLocator{
         //Requests
         this.ViewAllRequests = page.getByRole('button', { name: 'View All Requests' })
         this.ViewApprovalHierarchy = page.getByRole('button', { name: 'View Approval Hierarchy' })
-        this.ApprovalHierarchyDivs = page.locator('div.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation0');
+        this.ApprovalHierarchyDivs = page.locator('div.MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded.MuiPaper-elevation0').nth(1)
         this.ApprovalHierarchysidepanel = page.getByText('Requestor')
         this.ApprovalHierarchysidepanelCloseBtn = page.getByRole("button")
 
@@ -584,43 +585,90 @@ export default class SharedLocator{
         console.log(chalk.green(`=== ✔️ ${message} ===`));
     }
 
+    // async ValidateApprovalHierarchy(page: any){
+    //     //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
+    //     const container = await this.ApprovalHierarchyDivs.nth(4)
+    //     const texts = await container.locator('p').allTextContents();
+
+    //     const statusMatch = texts.match(/Status:\s*(.+)/);
+
+    //     const status = statusMatch?.[1]?.trim();
+
+    //     console.log(status);
+    //     // Option 2: Convert to structured object for nicer table
+    //     const tableData = [
+    //         {
+    //         Approver: texts[0] || '',
+    //         User: texts[1] || '',
+    //         Status: status || '',
+    //         Reason: texts[5] || ''
+    //         }
+    //     ];
+    //     console.table(tableData);
+    //     await expect(texts[3]).toBe('Pending Approval')
+        
+    //     await page.waitForTimeout(3000);
+    //     await this.CloseButtonX.click();
+    // }
+
+
     async ValidateApprovalHierarchy(page: any){
-        //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
-        const container = await this.ApprovalHierarchyDivs.nth(4)
-        const texts = await container.locator('p').allTextContents();
-        // Option 2: Convert to structured object for nicer table
+
+        const container = this.ApprovalHierarchyDivs;
+
+        const texts = await container
+            .locator('p')
+            .allTextContents();
+
+        // convert array into single string
+        const fullText = texts.join(' ');
+
+        const statusMatch = fullText.match(/Status:\s*(.+)/);
+
+        const status = statusMatch?.[1]?.trim();
+
+        console.log(status);
+
         const tableData = [
             {
             Approver: texts[0] || '',
-            User: texts[1] || '',
-            Status: texts[3] || '',
-            Reason: texts[5] || ''
+            Status: status || '',
+            //Reason: texts[5] || ''
             }
         ];
+
         console.table(tableData);
-        await expect(texts[3]).toBe('Pending Approval')
-        
+
+        await expect(status).toBe('Pending Approval');
+
         await page.waitForTimeout(3000);
+
         await this.CloseButtonX.click();
     }
 
     async GetVPApprovalHierarchyDetails(page: any){
         //const container = await page.locator("//div[@class='MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-p0wbwy']")
-        const container = await this.ApprovalHierarchyDivs.nth(1)
+        const container = await this.ApprovalHierarchyDivs
         const texts = await container.locator('p').allTextContents();
+        const fullText = texts.join(' ');
+
+        const statusMatch = fullText.match(/Status:\s*(.+)/);
+
+        const status = statusMatch?.[1]?.trim();
         // Option 2: Convert to structured object for nicer table
         const tableData = [
             {
-            Approver: texts[0] || '',
-            User: texts[1] || '',
-            Status: texts[3] || '',
-            Reason: texts[5] || ''
+                Approver: texts[0] || '',
+                Status: status || '',
             }
         ];
         await expect(texts[0]).toBe('VP - Charge Cost Center')
         console.table(tableData);
         await page.waitForTimeout(3000);
     }
+
+
+
     async ValidateEPRDetailsEXCOMBanner(EPR: string){
         const eprFields = new EPRFields(this.page);
         
